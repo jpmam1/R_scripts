@@ -3,7 +3,6 @@ library(leaflet)
 library(tidyverse)
 leaflet(width = "100%") %>% addProviderTiles("CartoDB.Positron") %>%
   setView(lat = -37.93, lng = 145.425, 14) %>% 
-  addMarkers(lat = -37.929657, lng = 145.425029, label = "Our House") %>% 
   addMarkers(lat = -37.921363, lng = 145.431046, label = "Telopea Trail") %>% 
   addMarkers(lat = -37.932101, lng = 145.446549, label = "Pepi's Land")
 
@@ -5941,11 +5940,11 @@ library(tidyverse)
 #install.packages("googledrive")
 library(googledrive)
 
-my_id <- "0B5vbZG4PAmN6UEFpemtFQzI3bWs"
+my_id <- "xxxxx"
 y <- drive_reveal(as_id(my_id))
 y$drive_resource[[1]]$size
 
-x <- drive_ls(as_id("1G0ekfu2J0sWQFHSOZj8T92oetG7eBHNV"))
+x <- drive_ls(as_id("xxxxx"))
 x$drive_resource[[1]]$size
 
 size <- NULL
