@@ -134,6 +134,8 @@ tab1 <- tabulizer::extract_tables(url, method = "lattice") %>%
   dplyr::slice(-1,-2) %>% 
   janitor::row_to_names(row_number = 1)
 
+############
+library(tidyverse)
 test <- read_csv2(file = "test.txt", trim_ws = TRUE)
 
 
@@ -1842,7 +1844,7 @@ ttest_fun <- function(x){
 ttest_fun(Sepal.Length)
 
 iris %>% 
-  summarise(across(everything(), ttest_fun))
+  summarise(across(-Species, ttest_fun))
 
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
 library(tidyverse)
@@ -5940,11 +5942,11 @@ library(tidyverse)
 #install.packages("googledrive")
 library(googledrive)
 
-my_id <- "xxxxx"
+my_id <- "0B5vbZG4PAmN6UEFpemtFQzI3bWs"
 y <- drive_reveal(as_id(my_id))
 y$drive_resource[[1]]$size
 
-x <- drive_ls(as_id("xxxxx"))
+x <- drive_ls(as_id("1G0ekfu2J0sWQFHSOZj8T92oetG7eBHNV"))
 x$drive_resource[[1]]$size
 
 size <- NULL
@@ -6219,6 +6221,3532 @@ ggplot(new_DF, aes(x = Dimensions, y = `Percentage of Variance Explained`)) +
   scale_y_continuous(labels = scales::percent_format())
 
 #################
+begin = Sys.time()
+x = rnorm(100000000, mean = 0, sd = 1)
+end = Sys.time()
+end - begin
+#################
+library(tidyverse)
+
+ggplot(mtcars, aes(factor(cyl), disp)) +
+  geom_col() +
+  facet_grid( ~ factor(gear), switch = "x") +
+  theme(
+    strip.placement = "outside",
+    strip.background.x = element_rect(fill = "white", color = "red", linetype = "FFFFFFFD")
+)
+###############
+library(tidyverse)
+library(lubridate)
+library(vroom)
+
+B <- vroom("test.txt")
+B$Month <- gsub(pattern = "\\.", replacement = " ", x = B$Month) %>% 
+  dmy(., quiet = FALSE, tz = NULL, truncated = 0)
+
+site_code <- c(
+  Berke = "(a)",
+  Hudson = "(b)",
+  Shirud = "(c)"
+)
+
+ggplot(B, aes(x = date, y = density, group = date)) +
+  geom_boxplot(aes(fill = site)) +
+  facet_wrap(~ site, labeller = labeller(site = site_code)) +
+  theme_classic() +
+  stat_summary(aes(shape = site), fun = median, geom = "point", size = 2.5) +
+  labs(x = "\nMonth", y = bquote('Density'~(mg))) +
+  theme(aspect.ratio=0.75,
+        axis.title.x = element_text(color = 'black',
+                                    face = 'bold',
+                                    size = 16,
+                                    hjust = 0.5),
+        axis.title.y = element_text(color = 'black',
+                                    face = 'bold',
+                                    size=18, 
+                                    hjust = 0.5),
+        legend.title = element_blank(),
+        legend.position = "top",
+        legend.text = element_text(color = "black",
+                                   face = 'bold',
+                                   size=12),
+        strip.background = element_rect(fill = "transparent",
+                                        color = "transparent"),
+        strip.text = element_text(size = 16, hjust = 0,
+                                  face = "bold"))
+#################
+library(tidyverse)
+library(knitr)
+df <- structure(list(n = 120559L, min = -143.53, q1 = c(`25%` = 0), 
+                     median = 417.524, mean = 512.838195862607, q3 = c(`75%` = 896.6585), 
+                     max = 23424.314), class = "data.frame", row.names = c(NA, 
+                                                                           -1L))
+knitr::kable(df, format = "simple")
+
+#################
+library(tidyverse)
+test <- read.table(text = "PID Category    column1 column2 column3
+123    1             54    2.4  24.5
+324    1             52    NA   NA
+356    1             NA    NA   NA
+378    2             56    3.2  NA
+395    2             NA    3.5  NA
+362    2             NA    8.9  NA
+789    3             65   12.6  23.8
+759    3             66    NA   26.8
+762    3             67    NA   27.2
+741    3             69   8.5   23.3",
+                   header = TRUE)
+test %>% 
+  mutate(across(everything(), ~ifelse(!is.na(.x), .x, mean(.x, na.rm = TRUE))))
+##################
+library(tidyverse)
+
+df1 <- tibble::tribble(
+  ~Year, ~Commodity, ~Commodity.Code, ~value1_k, ~value2_k,
+  2010,        "A",             721,       100,       100,
+  2010,        "B",             792,       200,       200
+) %>% 
+  group_by(Year, Commodity)
+
+df2 <- tibble::tribble(
+  ~Year, ~Commodity, ~Commodity.Code, ~value1_k, ~value2_k,
+  2011,        "C",            7242,       111,       123,
+  2011,        "D",            7421,       222,       234
+) %>% 
+  group_by(Year, Commodity)
+
+str(df1)
+str(df2)
+
+mylist <- list(df1, df2)
+
+mylist2 <- lapply(1:2, function(i){
+  mylist[[i]] %>% ungroup() %>% mutate(div=.[[4]] /.[[5]])
+})
+
+mylist2
+
+mylist2 <- lapply(1:2, function(i){
+  mylist[[i]] %>% mutate(div=.[[4]] /.[[5]])
+})
+
+###################
+library(tidyverse)
+library(lubridate)
+library(vroom)
+
+xhamster <- vroom("xhamster.csv")
+xhamster$upload_date<-as.Date(xhamster$upload_date,format="%d/%m/%Y")
+xhamster$Year <- year(ymd(xhamster$upload_date))
+
+xhamster %>% 
+  filter(Year %in% 2007:2013) %>% 
+  filter(grepl("Amateur", channels, fixed = TRUE)) %>%
+  group_by(Year) %>% 
+  summarise(Year = Year, id = n_distinct(id),
+            nb_views = sum(nb_views, na.rm = TRUE)) %>%
+  ungroup() %>%
+  distinct() %>%
+  mutate(Frequency = id / sum(id),
+         nb_views_proportion = nb_views / sum(nb_views)) %>% 
+  ggplot(aes(x = Year)) +
+  geom_col(aes(y = Frequency)) +
+  geom_point(aes(y = nb_views_proportion)) +
+  geom_line(aes(y = nb_views_proportion)) +
+  annotate(geom = "text", x = 2008, y = 0.15, label = "nb_views") +
+  scale_x_continuous(breaks = c(2007:2013),
+                   labels = c(2007:2013)) +
+  ylab(label = "Count") +
+  xlab(label = "Amateur") +
+  labs(title = "Usage of 'Amateur' as a tag from 2007 to 2013",
+       caption = "Data obtained from https://sexualitics.github.io/ under a CC BY-NC-SA 3.0 license") +
+  theme_minimal(base_size = 14)
+
+#################
+library(tidyverse)
+
+test_df <- tibble::tribble(
+                  ~Cars, ~Points, ~Score, ~Weigh,
+            "Mazda RX4",     3.9,   2.62,  16.46,
+        "Mazda RX4 Wag",     3.9,  2.875,  17.02,
+           "Datsun 710",    3.85,   2.32,  18.61,
+       "Hornet 4 Drive",    3.08,  3.215,  19.44,
+    "Hornet Sportabout",    3.15,   3.44,  17.02,
+              "Valiant",    2.76,   3.46,  20.22,
+           "Duster 360",    3.21,   3.57,  15.84,
+            "Merc 240D",    3.69,   3.19,     20,
+             "Merc 230",    3.92,   3.15,   22.9,
+             "Merc 280",    3.92,   3.44,   18.3,
+            "Merc 280C",    3.92,   3.44,   18.9,
+           "Merc 450SE",    3.07,   4.07,   17.4,
+           "Merc 450SL",    3.07,   3.73,   17.6,
+          "Merc 450SLC",    3.07,   3.78,     18,
+   "Cadillac Fleetwood",    2.93,   5.25,  17.98,
+  "Lincoln Continental",       3,  5.424,  17.82,
+    "Chrysler Imperial",    3.23,  5.345,  17.42,
+             "Fiat 128",    4.08,    2.2,  19.47,
+          "Honda Civic",    4.93,  1.615,  18.52,
+       "Toyota Corolla",    4.22,  1.835,   19.9,
+        "Toyota Corona",     3.7,  2.465,  20.01,
+     "Dodge Challenger",    2.76,   3.52,  16.87,
+          "AMC Javelin",    3.15,  3.435,   17.3,
+           "Camaro Z28",    3.73,   3.84,  15.41,
+     "Pontiac Firebird",    3.08,  3.845,  17.05,
+            "Fiat X1-9",    4.08,  1.935,   18.9,
+        "Porsche 914-2",    4.43,   2.14,   16.7,
+         "Lotus Europa",    3.77,  1.513,   16.9,
+       "Ford Pantera L",    4.22,   3.17,   14.5,
+         "Ferrari Dino",    3.62,   2.77,   15.5,
+        "Maserati Bora",    3.54,   3.57,   14.6,
+           "Volvo 142E",    4.11,   2.78,   18.6
+  )
+write.csv(test_df, "test_data.txt", quote = FALSE, row.names = FALSE)
+################
+library(tidyverse)
+library(vroom)
+
+# Import some example data from github
+df <- vroom("https://raw.githubusercontent.com/quantixed/Maps-N-Flags/master/exampleData.csv")
+
+# Take the dataframe
+df %>% 
+  # Select the column for "Country"
+  select(Country = Nationality) %>%
+  # Create a new variable called "cost" made up of random numbers
+  mutate(cost = as.integer(rnorm(nrow(.), mean = 100, sd = 20))) %>%
+  # Sort and group the data by Country
+  arrange(Country) %>% 
+  group_by(Country) %>% 
+  # Summarise each group (each country) and show the mean
+  summarise(cost, mean_cost_AUD = mean(cost, na.rm = TRUE))
+
+###################
+library(tidyverse)
+library(devtools)
+install_github("vqv/ggbiplot")
+library(ggbiplot)
+
+data <- MyData
+data.pca <- prcomp(data[-1], scale. = TRUE)
+data.class <- factor(x = c("recyclable", "recyclable", "recyclable", "recyclable",
+                "recyclable", "not recyclable", "not applicable",
+                "not applicable", "not applicable", "not recyclable",
+                "recyclable", "recyclable", "recyclable", "recyclable",
+                "not recyclable"),
+                levels = c("recyclable", "not recyclable", "not applicable"))
+
+ggbiplot(data.pca, obs.scale = 1, var.scale = 1,
+         groups = data.class, ellipse = TRUE,
+         circle = TRUE) +
+  scale_color_discrete(name = '') +
+  theme(legend.direction = 'horizontal', 
+               legend.position = 'top')
+###############
+library(tidyverse)
+set.seed(1)
+df <- data_frame("x" = sample(x = 0:700, size = 1000000, replace = TRUE),
+                 "y" = sample(x = 0:400, size = 1000000, replace = TRUE),
+                 "z" = sample(x = 0:200, size = 1000000, replace = TRUE))
+
+ifelse_func <- function(df){
+  df$z <- ifelse((df$x > 300 & df$x < 600) & (df$y > 0 & df$y < 100) & (df$z > 160), 115, df$z)
+}
+
+transform_func <- function(df){
+  transform(df, z = replace(z, 300 < x & x < 600 & 0 < y & y < 100 & z > 160, 115))
+}
+
+rowsums_func <- function(df){
+  df$z[!rowSums(!(df >list(300, 0, 160) & df < list(600, 100, Inf)))] <- 115
+}
+
+library(data.table)
+dt_func <- function(df){
+  setDT(df)
+  df[x > 300 & x < 600 & y > 0 & y < 100 & z > 160, z := 115]
+  }
+
+mbm <- microbenchmark::microbenchmark(ifelse_func(df), transform_func(df),
+                                      rowsums_func(df), dt_func(df))
+autoplot(mbm)
+
+system.time(ifelse_func(df))
+system.time(transform_func(df))
+system.time(rowsums_func(df))
+system.time(dt_func(df))
+
+###############
+library(tidyverse)
+library(vroom)
+
+df <- vroom("https://archive.ics.uci.edu/ml/machine-learning-databases/forest-fires/forestfires.csv")
+mod1 = lm(area ~ temp, data = df)
+confint(mod1, "temp", level=0.90)
+
+mod1$coefficients
+df %>% 
+  mutate(fitted = mod1$coefficients[2] * temp + mod1$coefficients[1]) %>% 
+  ggplot(aes(x = temp)) +
+  geom_point(aes(y = area)) +
+  geom_smooth(aes(y = area), formula = y ~ x, method = "lm", level = 0.90) +
+  geom_line(aes(y = fitted)) +
+  coord_cartesian(ylim = c(-0.01, 200))
+################
+library(tidyverse)
+sdss16 <- data.frame(
+  z = c(0.845435,2.035491,
+        1.574227,1.770552,2.024146,2.309,0.25,2.102771,
+        1.991313,2.497),
+  umag = c(18.964,22.0825,
+           22.5173,22.3475,18.7664,22.4403,21.6832,22.3606,
+           19.6818,21.942)
+)
+sdss16 %>% 
+  mutate(z_category = case_when(z < quantile(z, 0.25) ~ "Low",
+                                  z >= quantile(z, 0.25) &
+                                  z <= quantile(z, 0.75) ~ "Medium",
+                                  z > quantile(z, 0.75) ~ "High"))
+###############
+library(tidyverse)
+#remotes::install_github("coolbutuseless/ggpattern")
+library(ggpattern)
+df <- data.frame(level = c("a", "b", "c", 'd'), outcome = c(2.3, 1.9, 3.2, 1))
+
+ggplot(df) +
+  geom_col_pattern(aes(x = level, 
+                       y = outcome, 
+                       pattern_fill = level), 
+                   pattern = "crosshatch",
+                   fill    = "white",
+                   colour  = "black") +
+  theme_bw(base_size = 18) +
+  theme(legend.position = 'none')
+################
+install.packages("topicmodels", type = "source")
+install.packages("ldatuning", type = "source")
+install.packages("Rmpfr")
+
+library(topicmodels)
+library(ldatuning)
+data("AssociatedPress")
+
+owl <- ldatuning::FindTopicsNumber(AssociatedPress, topics = c(1:10),
+                                   metrics = c("Griffiths2004", "CaoJuan2009",
+                                               "Arun2010", "Deveaud2014"),
+                                   method = "Gibbs", control = list(seed = 1234),
+                                   mc.cores = parallel::detectCores() - 1,
+                                   verbose = T)
+###############
+library(tidyverse)
+data <- structure(1:5, .Label = c("AVE_prQD_AFR_p10", "PER_prVD_DSR_p9", "PA_prSX_AR_p8", 
+                                  "prAV_AES_p7", "prGR_AXXR_p6", "prQW_AWAR_p5"), class = "factor")
+str_split(data, "_")
+###############
+library(tidyverse)
+df <- read.table(text = "Variable Subject Value
+  V1       A      1
+  V1       B      0
+  V1       C      1
+  V2       A      0
+  V2       B      1
+  V2       C      0
+  V3       A      1
+  V3       B      1
+  V3       C      1", header = TRUE)
+###############
+library(tidyverse)
+data()
+data(mtcars)
+df <- mtcars
+head(df)
+
+df2 <- df %>% 
+  mutate(ratio = disp / hp)
+head(df2)
+
+df$ratio2 <- df$disp / df$hp
+###############
+library(tidyverse)
+iris2 <- iris %>%
+  group_by(Species) %>%
+  mutate(sepal_length_group = case_when(Sepal.Length <= quantile(Sepal.Length, 0.25) ~ "p25",
+                                        Sepal.Length > quantile(Sepal.Length, 0.25) & Sepal.Length <= quantile(Sepal.Length, 0.5) ~ "p50",
+                                        Sepal.Length > quantile(Sepal.Length, 0.5) & Sepal.Length <= quantile(Sepal.Length, 0.75) ~ "p75",
+                                        Sepal.Length > quantile(Sepal.Length, 0.75) ~ "p100")) %>% 
+  ungroup()
+str(iris2)
+iris3 <- as_tibble(iris) %>% 
+  filter(Species == "setosa") %>% 
+  mutate(sepal_length_group = case_when(Sepal.Length <= quantile(Sepal.Length, 0.25) ~ "p25",
+                                      Sepal.Length > quantile(Sepal.Length, 0.25) & Sepal.Length <= quantile(Sepal.Length, 0.5) ~ "p50",
+                                      Sepal.Length > quantile(Sepal.Length, 0.5) & Sepal.Length <= quantile(Sepal.Length, 0.75) ~ "p75",
+                                      Sepal.Length > quantile(Sepal.Length, 0.75) ~ "p100"))
+identical(iris2, iris3)
+
+###############
+df <- titanic::titanic_train
+df2 <- df %>%
+  select(PassengerId, Name, Sex, Age) %>% 
+  na.omit() %>% 
+  mutate(Age = as.integer(Age))
+write.csv(df2, file = "titanic.csv")
+###############
+library(tidyverse)
+library(janitor)
+
+test_df <- tibble("test_µ" = c(1,2,3), 
+                  "test_%23ñ" = c("fesfñUaâ", "fesââçç", "ËÔ†"), 
+                  "test_normal" = c("wordsñ", "£Ÿüõ", "ÁÑ¿F"))
+
+test_df %>% 
+  clean_names() %>% 
+  mutate(across(everything(), ~ make_clean_names(.)))
+###############
+library(tidyverse)
+library(lubridate)
+
+set.seed(101)
+
+data <- tibble(date1 = sample(
+  seq(ymd('2021-03-20'), ymd('2021-05-20'), by = 'day'), 
+  10000, replace = TRUE),
+  date2 = sample(seq(ymd('2021-03-20'), ymd('2021-05-20'), by = 'day'), 
+                 10000, replace = TRUE),
+  date3 = sample(seq(ymd('2021-03-20'), ymd('2021-05-20'), by = 'day'), 
+                 10000, replace = TRUE),
+  date4 = sample(seq(ymd('2021-03-20'), ymd('2021-05-20'), by = 'day'), 
+                 10000, replace = TRUE),
+  date5 = sample(seq(ymd('2021-03-20'), ymd('2021-05-20'), by = 'day'), 
+                 10000, replace = TRUE))
+
+rowwise_func <- function(data){
+  data %>%
+    rowwise() %>%
+    mutate(earliest_date = min(c(date1, date2, date3, date4, date5),
+                               na.rm = TRUE)) %>% 
+    ungroup()
+}
+
+pmap_func <- function(data){
+  data %>% 
+    mutate(try_again = pmap(list(date1, date2, date3, date4, date5), 
+                          min, na.rm = TRUE))
+  }
+
+det_func1 <- function(data){
+  data %>%
+  mutate(min_date = pmap_dbl(select(., matches("^date")), min) %>% as.Date(origin = "1970-01-01"))
+}
+
+det_faster <- function(data){
+  data[["min_date"]] <- data %>% 
+    mutate(across(where(is.Date), as.integer)) %>% 
+    as.matrix() %>% 
+    apply(1, function(x) x[which.min(x)]) %>%
+    as.Date(origin = "1970-01-01")
+}
+
+transform_func <- function(data){
+  as_tibble(transform(data, earliest_date = pmin(date1, date2, date3, date4, date5, na.rm = TRUE)))
+}
+
+dt_func <- function(data){
+  setDT(data)
+  data[, earliest_date := pmin(date1, date2, date3, date4, date5, na.rm = TRUE)]
+}
+
+times <- microbenchmark::microbenchmark(rowwise_func(data), pmap_func(data), det_func1(data), det_faster(data), transform_func(data), dt_func(data))
+autoplot(times)
+
+data2 <- transform_func(data)
+data3 <- rowwise_func(data)
+identical(data2, data3)
+
+boomer::boom(transform(data, earliest_date = pmin(date1, date2, date3, date4, date5, na.rm = TRUE)))
+boomer::boom(ddata %>%
+               rowwise() %>%
+               mutate(earliest_date = min(c(date1, date2, date3, date4, date5),
+                                          na.rm = TRUE)) %>% 
+               ungroup())
+##################
+library(tidyverse)
+data(us_rent_income)
+df <- us_rent_income
+df2 <- df %>%
+  bind_rows(., df, df, df) %>% 
+  arrange(NAME) %>% 
+  filter(variable == "rent") %>% 
+  mutate(duplicates = ifelse(
+    lag(NAME, n = 1, default = "FALSE") != NAME, "FALSE", "TRUE")
+    ) %>% 
+  select(NAME, variable, estimate, duplicates)
+
+df3 <- df2 %>% 
+  group_by(NAME) %>% 
+  mutate(duplicate_ordinality = cumsum(duplicates == "TRUE")) %>% 
+  ungroup()
+
+##############
+library(palmerpenguins)
+example_df <- penguins
+penguins_clean <- na.omit(penguins)
+str(penguins_clean)
+boxplot(penguins$body_mass_g ~ penguins$species + penguins$sex)
+
+#############
+library(ggplot2)
+library(forcats)
+
+genes <- factor(x = c(
+    'ABC',
+    'CDE',
+    'EFG',
+    'HIJ',
+    'JKL',
+    'LMN',
+    'ABC',
+    'CDE',
+    'EFG',
+    'HIJ',
+    'JKL',
+    'LMN',
+    'ABC',
+    'CDE',
+    'EFG',
+    'HIJ',
+    'JKL',
+    'LMN',
+    'ABC',
+    'CDE',
+    'EFG',
+    'HIJ',
+    'JKL',
+    'LMN',
+    'ABC',
+    'CDE',
+    'EFG',
+    'HIJ',
+    'JKL',
+    'LMN',
+    'ABC',
+    'CDE',
+    'EFG',
+    'HIJ',
+    'JKL',
+    'LMN'
+  ), levels = c(
+    'LMN',
+    'JKL',
+    'HIJ',
+    'EFG',
+    'CDE',
+    'ABC'
+  ),
+  ordered = TRUE
+)
+concentration <-
+  fct_inorder(
+    f = c(
+      'PR1.2',
+      'PR1.2',
+      'PR1.2',
+      'PR1.2',
+      'PR1.2',
+      'PR1.2',
+      'PR2.4',
+      'PR2.4',
+      'PR2.4',
+      'PR2.4',
+      'PR2.4',
+      'PR2.4',
+      'PR3.6',
+      'PR3.6',
+      'PR3.6',
+      'PR3.6',
+      'PR3.6',
+      'PR3.6',
+      'PR1.2T',
+      'PR1.2T',
+      'PR1.2T',
+      'PR1.2T',
+      'PR1.2T',
+      'PR1.2T',
+      'PR2.4T',
+      'PR2.4T',
+      'PR2.4T',
+      'PR2.4T',
+      'PR2.4T',
+      'PR2.4T',
+      'PR3.6T',
+      'PR3.6T',
+      'PR3.6T',
+      'PR3.6T',
+      'PR3.6T',
+      'PR3.6T'
+    ),
+    ordered = TRUE
+  )
+foldchange <-
+  c(
+    577.19,
+    2.642,
+    -697.90,
+    50.23,
+    12.582,
+    -30.542,
+    -15.376,
+    30.674,
+    -1.973,
+    -5.324,
+    -132.761,
+    146.678,
+    500.19,
+    2.233,-656.90,
+    49.23,
+    13.582,
+    -80.542,
+    577.19,
+    2.642,
+    -697.90,
+    50.23,
+    12.582,
+    -30.542,
+    577.19,
+    2.642,
+    -697.90,
+    50.23,
+    12.582,
+    -30.542,
+    577.19,
+    2.642,
+    -697.90,
+    50.23,
+    12.582,
+    -30.542
+  )
+pval <- c(4, 2, 2, 2, 3, 3, 2, 3, 1, 1, 4, 4, 4, 2, 2, 2, 3, 3)
+data <- data.frame(genes, concentration, foldchange, pval)
 
 
-                       
+# now make dot plot using ggplot2
+p <- ggplot(data, aes(x = concentration, y = genes, size = pval)) +
+  geom_point(alpha = 0.9) +
+  geom_point(aes(colour = cut(foldchange,
+                              breaks = c(
+    500,
+    250,
+    100,
+    50,
+    25,
+    10,
+    5,
+    2,
+    -2,
+    -5,
+    -10,
+    -25,
+    -50,
+    -100,
+    -250,
+    -500
+  )))) +
+  labs(y = "Gene") +
+  scale_color_manual(
+    name = "fold change",
+    values = c(
+      "(500, Inf]" = "firebrick4",
+      "(250,500]" = "firebrick",
+      "(100,250]" = "red3",
+      "(500,100]" = "red2",
+      "(25,50]" = "red",
+      "(10,25]" = "firebrick2",
+      "(5,10]" = "firebrick1",
+      "(2,5]" = "rosybrown1",
+      "(-2,2]" = "gray98",
+      "(-5,-2]" = "lightskyblue",
+      "(-10,-5]" = "deepskyblue",
+      "(-25,-10]" = "dodgerblue2",
+      "(-50,-25]" = "dodgerblue4",
+      "(-100,-50]" = "blue",
+      "(-250,-100]" = "blue3",
+      "(-500,-250]" = "darkblue",
+      "(-Inf,-500]" = "navy"),
+    labels = c("500", "250", "100", "50", "25", "10", "5", "2", "-2", "-5", "-10", "-25", "-50", "-100", "-250", "-500"),
+    breaks = c(500, 250, 100, 50, 25, 10, 5, 2, -2, -5, -10, -25, -50, -100, -250, -500))
+p + scale_size(breaks = c(1,2,3,4), labels=c("pval >0.05", "0.01<pval<0.05", "0.001<pval<0.01", "pval<0.001"))
+####################
+library(data.table)
+library(tidyverse)
+library(zoo)
+
+tiddlywinks <- tibble("Jimmy" = sample(0:1, 1000, replace = TRUE),
+                      "John" = ifelse(Jimmy == 1, 0, 1),
+                      "DateTime" = seq.Date(from = as.Date("2020-01-01") - 1000,
+                                            to = as.Date("2020-01-01"),
+                                            length.out = 1000),
+                      "Date" = DateTime + 1)
+setDT(tiddlywinks)
+tiddlywinks[, Jimmy_sum_past_30_days := rollsumr(Jimmy, 30, fill = NA)]
+tiddlywinks[, John_sum_past_30_days := rollsumr(John, 30, fill = NA)]
+tiddlywinks[, Jimmy_average_past_30_days := rollmeanr(Jimmy, 30, fill = NA)*100]
+tiddlywinks[, John_average_past_30_days := rollmeanr(John, 30, fill = NA)*100]
+
+tiddlywinks2 <- sample_n(tiddlywinks, 500) %>% 
+  arrange(DateTime)
+tiddlywinks2[, Jimmy_sum_past_30_days := rollsumr(Jimmy, 30, fill = NA)]
+tiddlywinks2[, John_sum_past_30_days := rollsumr(John, 30, fill = NA)]
+tiddlywinks2[, Jimmy_average_past_30_days := rollmeanr(Jimmy, 30, fill = NA)*100]
+tiddlywinks2[, John_average_past_30_days := rollmeanr(John, 30, fill = NA)*100]
+tiddlywinks2[1:31]
+##################
+library(tidyverse)
+library(readxl)
+
+sal <- read_excel("salinity.xlsx", sheet="Sheet1")
+sal2 <- sal %>%
+  mutate(year = factor(year),
+         date = as.Date(day, origin = "1995-01-01") -1) %>%
+  mutate(Data = rowMeans(select(., `Larv-PLarv`, Adults, Juvenile))) %>%
+  pivot_longer(-c("year","day","date")) %>% 
+  filter(year %in% 1995:2005)
+
+ggplot(sal2, aes(x = date, y = value, colour = year)) + 
+  geom_line() +
+  facet_wrap(~factor(name, levels = c("Larv-PLarv", "Juvenile", "Adults", "Data")), ncol = 1) +
+  ylab("Salinity") +
+  scale_x_date(breaks = seq(as.Date("1995-01-15"),
+                            as.Date("1995-12-15"),
+                            by = "1 month"),
+               date_labels = "%b") +
+  theme_bw()
+##################
+library(tidyverse)
+df <- read.table(text = "               t1             t2      Rg Rg_SE
+1              WT            Fat  0.6818 0.0962
+2              WT          FatPC  0.1853 0.1354
+3              WT            DTD -0.1684 0.1232
+4             Fat        DefCode      NA 0.1608", header = TRUE)
+
+df2 <- df %>% 
+  mutate(Rg = ifelse((Rg_SE*2) > abs(Rg), NA, Rg))
+
+df3 <- df %>% 
+  mutate(Rg = if_else((Rg_SE * 2) > abs(Rg), NA_real_, Rg))
+
+identical(df2, df3)
+#####################
+library(tidyverse)
+library(palmerpenguins)
+
+penguins %>%
+  na.omit() %>%
+  filter(island == "Dream") %>%
+  ggplot(aes(x = species, y = 1, fill = sex)) +
+  geom_bar(position = "fill", stat = "identity", colour = "black") +
+  facet_grid(~ island, scales = "free_x", space = "free_x") +
+  theme(legend.position = "none", panel.spacing.x = unit(0, "npc")) +
+  guides(colour = FALSE) +
+  theme_void()
+
+penguins %>%
+  na.omit() %>%
+  filter(island == "Dream") %>%
+  ggplot(aes(x = species, y = 1, fill = sex)) +
+  geom_bar(position = "fill", stat = "identity", colour = "black") +
+  facet_grid(~ island, scales = "free_x", space = "free_x") +
+  theme_void() +
+  theme(legend.position="none", panel.spacing.x = unit(0, "npc"))
+  
+#################
+library(tidyverse)
+options(timeout = 6000)
+url <- "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/KettunenJ_27005778_GCST003664/"
+## query the url to get all the file names ending in '.gz'
+zips <- XML::getHTMLLinks(
+  url, 
+  xpQuery = "//a/@href['.gz'=substring(., string-length(.) - 2)]"
+)
+zips
+## create a new directory 'myzips' to hold the downloads
+dir.create("C:/Work/GWAS/download")
+## save the current directory path for later
+wd <- getwd()
+## change working directory for the download
+setwd("C:/Work/GWAS/download")
+## create all the new files
+file.create(zips)
+## download them all
+lapply(paste0(url, zips), function(x) download.file(x, basename(x)))
+## reset working directory to original
+setwd(wd)
+#####################
+library(tidyverse)
+
+df1 <- mtcars %>%
+  as_tibble() %>% 
+  add_count(disp, name = "duplicates?")
+
+df2 <- mtcars %>% 
+  group_by(carb) %>% 
+  add_count(disp, name = "duplicates?") %>% 
+  ungroup()
+
+identical(df1, df2)
+###################
+library(tidyverse)
+library(palmerpenguins)
+
+penguins$sex <- factor(penguins$sex)
+ggplot(penguins, aes(x = bill_length_mm)) +
+  geom_histogram(binwidth = 1, color="white", fill="steelblue", position = "dodge")
+
+ggplot(penguins, aes(x = bill_length_mm, fill = sex)) +
+  geom_histogram(binwidth = 1, position = "dodge") +
+  scale_fill_manual(values = c("skyblue", "dodgerblue"))
+##################
+library(tidyverse)
+dat1 <- read.table(text = "var1 txn_date 
+5 2020-10-25
+1 2020-10-25
+3 2020-10-26
+4 2020-10-27
+1 2020-10-27 
+3 2020-10-31  
+3 2020-11-01 
+8 2020-11-02 ", header = TRUE)
+
+dat1$txn_date <- as.Date(dat1$txn_date)
+dat1 %>% 
+  mutate(days = txn_date - txn_date[1] + 1)
+##################
+library(tidyverse)
+dat1 <- read.table(text = "Trial_Type CT_tib_all CT_lum_all CT_tho_all CT_gps_all CT_vest_all
+1 Pre             0.244      0.209      0.309      0.315       0.310
+2 Post            0.254      0.211      0.302      0.313       0.316",
+                   header = TRUE) %>% 
+  as_tibble()
+
+dat1 %>%
+  pivot_longer(cols = -c(Trial_Type)) %>%
+  pivot_wider(names_from = Trial_Type, values_from = value)
+#################
+x = seq(from = -1.2, to = 1.2, by = 0.1)
+y <- x^4 + x^3 - x^2 - x + 1
+expression_to_plot <- "x^4 + x^3 - x^2 - x + 1"
+plot(x, y, type = "l")               
+mtext(expression_to_plot, 3)
+#################
+library(tidyverse)
+library(ggbeeswarm)
+
+data(diamonds)
+dat1 <- diamonds
+dat1 %>% 
+  ggplot(aes(x = cut, y = carat^2)) +
+  geom_violin()
+
+dat1 %>% 
+  ggplot(aes(x = cut, y = carat^2)) +
+  geom_quasirandom(groupOnX = TRUE)
+
+dat1 %>% 
+  ggplot(aes(x = cut, y = carat^2) ) +
+  geom_hex(bins = 10)
+#################
+library(tidyverse)
+
+df <- data.frame(x = c(1,2,3,4,1,2,3,4,1,2,3,4),
+                 y = c(1,1,1,2,2,2,3,3,3,4,4,4))
+
+df_arrow <- data.frame(x = c(0, 0),
+                       y = c(0, 0),
+                       xend = c(0, 8),
+                       yend = c(8, 0)) 
+
+top_line <- data.frame(x = c(0,1,2,3,4,5,6,7),
+                       y = c(1,2,3,4,5,6,7,8))
+
+bottom_line <- data.frame(x = c(1,2,3,4,5,6,7,8),
+                          y = c(0,1,2,3,4,5,6,7))
+
+df %>% 
+  dplyr::mutate(z = ifelse(x > y + 1, "a",
+                           ifelse(x < y - 1, "b", "c"))) %>%
+  ggplot(aes(x = x, y = y)) +
+  geom_point(aes(shape = z, color = z), size = 5) +
+  geom_line(data = top_line, aes(x = x, y = y)) +
+  geom_abline(aes(slope = 1, intercept = 0)) +
+  geom_line(data = bottom_line, aes(x = x, y = y)) +
+  scale_x_continuous(breaks = 1:7, expand = expansion(add = c(0, 1)))+
+  scale_y_continuous(breaks = 1:7, expand = expansion(add = c(0, 1)))+
+  coord_fixed(xlim = c(0, 7), ylim = c(0, 7), clip = "off")+
+  geom_segment(data = df_arrow, aes(x = x, xend = xend, y = y, yend = yend), size = 0.75, colour = "black",
+               arrow = arrow(angle = 20, length = unit(3, "mm"), ends = "last", type = "closed"), linejoin = "mitre") +
+  annotate("text", x = c(7.8, 0.3), y = c(0.3, 7.8), label = c("italic(x)", "italic(y)"), parse = TRUE, size = 6)+
+  labs(x = NULL,
+       y = NULL)+
+  theme_bw()+
+  theme(panel.grid.major = element_line(colour = "gray80"),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.ticks.length = unit(1, "mm"),
+        text = element_text(size = 18),
+        legend.position = "none") +
+  scale_colour_manual(values = c('red', 'blue', 'black')) +
+  scale_shape_manual(breaks = c("a", "b", "c"),
+                     values = c("a" = 95, "b" = 3, "c" = 19))
+##################
+library(survminer)
+library(survival)
+
+fit<- survfit(Surv(time, status) ~ sex, data = lung)
+ggsurvplot(fit, data = lung,
+           legend.labs = c("< 50 years", "> 50 years"))
+##################
+# Load packages
+library(tidyverse)
+#install.packages("splitTools")
+library(splitTools)
+
+# set seed
+set.seed(123)
+
+# create data
+people <- data.frame(Name = paste("Name", 1:51),
+                     Var1 = sample(c("A", "B"), 51, prob = c(0.3, 0.7), replace = TRUE),
+                     Var2 = sample(1:2, 51, replace = TRUE))
+table(people$Var1, people$Var2)
+
+# proportion of "people" in each split
+prop <- 1/9
+inds <- partition(people$Var1, p = c(a = prop, b = prop, c = prop,
+                                     d = prop, e = prop, f = prop,
+                                     g = prop, h = prop, i = prop))
+# split the patients (load dfs into a list)
+dfs <- list()
+for (i in 1:9){
+  dfs[[i]] <- people[inds[[i]],]
+}
+# name the dfs
+names(dfs) <- c("df_01", "df_02", "df_03", "df_04", "df_05",
+                "df_06", "df_07", "df_08", "df_09")
+
+# check requirements (at least 1 "A" in Var1)
+for (i in seq_along(dfs)){
+  if(!nrow(filter(dfs[[i]], Var1 == "A")) >= 1){
+    print("error")
+  }
+}
+
+# If no error, load dataframes into global environment
+list2env(dfs, envir=.GlobalEnv)
+####################
+library(data.table)
+#install.packages("mltools")
+library(mltools)
+set.seed(123)
+
+foo_data <- data.table(
+  x = rep("A", 6),
+  y = sample(1:3, 6, replace = T),
+  var1 = sample(c("One", "Two"),  6, replace = T),
+  var2 = sample(c(3, 4),  6, replace = T),
+  stringsAsFactors = TRUE
+)
+
+one_hot(foo_data)
+##############
+library(tidyverse)
+from <- c("NYC","PAR", "SYD", "MAD")
+to <- c("PAR", "SYD", "MEL", "BCN")
+date <- c("05/07","05/07", "05/07", "06/08")
+step <- c(1, 2, 3, 1)
+df <- data.frame(from, to, date, step)
+df %>% 
+  mutate(trip = case_when(step == 1 & lead(step, 2L) == 3 ~ 
+                            paste(from, to, lead(to, 1L),
+                                  lead(to, 2L), sep = "-"),
+                          step == 2 & lag(step, 1L) == 1 & lead(step, 1L) == 3 ~ 
+                            paste(lag(from, 1L), lag(to, 1L), to, lead(to, 1L), sep = "-"),
+                          step == 2 & lead(step, 1L) != 3 ~
+                            paste(lag(from, 1L), from, to, sep = "-"),
+                          step == 3 & lag(step, 1L) == 2 & lag(step, 2L) == 1 ~ 
+                            paste(lag(from, 2L), lag(to, 2L), lag(to, 1L), to, sep = "-"),
+                          step == 1 & lead(step, 1L, default = 1) != 2 ~
+                            paste(from, to, sep = "-")))
+
+
+relation <- function(dat){
+  .relation <- function(x){
+    k = unique(sort(c(dat[dat[, 1] %in% x, 2], x, dat[dat[, 2] %in% x, 1])))
+    if(setequal(x,k)) toString(k) else .relation(k)}
+  sapply(dat[,1],.relation)
+}
+df$trip <- relation(df)
+df
+###################
+library(tidyverse)
+df <- data.frame(responses=c(rep("A",5),
+                             rep("B",15),
+                             rep("C", 25)))
+ggplot(df, aes(responses))+
+  geom_bar(aes(y = ..prop.. * 100, group = 1)) +
+  geom_text(aes(y = ..prop.. * 100, label = scales::percent(..prop..), group = 1),
+            stat = "count", vjust = 0, nudge_y = 1)
+###################
+plot.new(); text(0.5,0.5, bquote("1,513"), cex=5)
+################
+library(tidyverse)
+v <- ggplot(faithfuld, aes(waiting, eruptions, z = density)) +
+  geom_contour()
+################
+library(tidyverse)
+data <- tibble::tribble(
+   ~Condition,             ~ENSG, ~average.raw.counts,
+  "Untreated", "ENSG00000260456",        1.190091e-05,
+    "Treated", "ENSG00000183570",        1.195156e-05,
+  "Untreated", "ENSG00000260451",        1.290091e-05,
+  "Treated", "ENSG00000183572",        1.295156e-05,
+  "Untreated", "ENSG00000260454",        1.390091e-05,
+  "Treated", "ENSG00000183575",        1.395156e-05,
+  "Untreated", "ENSG00000260457",        1.110091e-05,
+  "Treated", "ENSG00000183578",        1.115156e-05
+  )
+data %>% 
+  mutate(bin = cut_width(average.raw.counts, width = 0.000002, boundary = 0)) %>%
+  ggplot(aes(x = bin, y = average.raw.counts)) +
+  geom_boxplot(aes(fill = Condition)) +
+  scale_fill_manual(values = c("#f60013", "#21fffe")) +
+  theme_minimal()
+##############
+# Load libraries
+library(tidyverse)
+
+# Create fake data
+dx <- list()
+for (i in 1:25){
+  dx[[i]] <- c(paste("I",
+                     round(rnorm(n = 50, mean = 21, sd = 5), 1),
+                     sep = ""))
+}
+
+name_list <- paste("dx", 1:25, sep = "")
+Data1 <- as.data.frame(dx, col.names = name_list)
+
+# Create a variable called "AMI" to count the occurrences of values:
+# "I21.0","I21.1","I21.2","I21.3","I21.4","I21.9"
+
+Data1 %>% 
+ mutate(AMI = ifelse(rowSums(
+   sapply(select(., starts_with("dx")),
+          function(x) grepl(pattern = paste(c("I21.0","I21.1","I21.2","I21.3","I21.4","I21.9"),
+                                            collapse = "|"), x)
+   )) > 0, 1, 0)
+ )
+################
+library(tidyverse)
+dat1 <- read.table(text = "Team  Date          Stat
+ATL   2014-10-29    2.77833333
+ATL   2014-11-01    2.22500000
+ATL   2014-11-05    2.68166667
+ATL   2014-11-07    -1.56833333
+ATL   2014-11-08    2.09333333
+BOS   2014-10-29    4.70000000
+BOS   2014-11-01    4.12166667
+BOS   2014-11-03    1.46833333
+BOS   2014-11-05    -0.15500000
+BOS   2014-11-07    0.40500000",
+                   header = TRUE)
+dat1 %>% 
+  group_by(Team) %>% 
+  summarise(mean = mean(Stat))
+
+###############
+library(tidyverse)
+library(olsrr)
+library(reshape2)
+library(ggpmisc)
+data(surgical)
+
+## Regression 
+pre1 <-setdiff(names(surgical), c("y", "pindex"))
+mod_dres<-NULL
+for (j in pre1) {
+  model  <- lm(y  ~  pindex + get(j), data = surgical)
+  bmodel <- broom::tidy(model)
+  bmodel$term[3]<-j
+  bmodel<-bmodel[3,]
+  mod_dres<-rbind(mod_dres,bmodel)
+}
+mod_dres
+
+## Matching the significant variables with the orginal data and reshaping  
+pre1.plot = melt(surgical[,-c(2)], id.vars='y') %>% 
+  dplyr::filter(variable %in% mod_dres$term) 
+
+## plot the predictors varaibles 
+ggplot(pre1.plot) +
+  geom_jitter(aes(value, y, colour=variable),
+              colour="darkorange", size = 3) + 
+  geom_smooth(aes(value, y, colour=variable),
+              formula = y ~ x, method="lm", se=FALSE,
+              colour="darkorange") +
+  stat_poly_eq(formula = y ~ x, 
+               aes(x = value, y = y, label = paste(..rr.label..,
+                                                   ..p.value.label..,
+                                                   sep = "~~~~")), 
+               parse = TRUE) +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 16,face="bold", colour = "black"),
+        axis.text = element_text(size = 16,face="bold", colour = "black"),
+        axis.line = element_line(colour='black'),
+        axis.ticks = element_line(colour='black'),
+        plot.title = element_text(hjust = 0.5,size=18,face="bold"),
+        legend.position = "bottom",
+        legend.title = element_text(color = "Black", size = 9, face = "bold"),
+        legend.text=element_text(color = "Black", size = 9, face = "bold"),
+        strip.text.x = element_text(size = 16,face="bold", colour = "black")) +
+  labs(x = "value",title = " ") +
+  facet_wrap(~variable, scales="free_x",nrow = 2, ncol = 4) + 
+  theme(panel.background = element_rect(fill = "white", colour = "black"),
+        strip.background = element_rect(fill = "white", colour = "black"),
+        legend.key = element_blank(),
+        legend.title = element_blank())
+####################
+library(tidyverse)
+dat1 <- data.frame(
+  stringsAsFactors = FALSE,
+                          Condition = c(1L,1L,1L,1L,1L,1L,1L,1L,1L,
+                                        1L,2L,2L,2L,2L,2L,2L,2L,2L,2L,
+                                        2L),
+                         TargetWord = c("Target1","Target1","Target1",
+                                        "Target1","Target1","Target2","Target2",
+                                        "Target2","Target2","Target2",
+                                        "Target3","Target3","Target3","Target3",
+                                        "Target3","Target4","Target4","Target4",
+                                        "Target4","Target4"),
+                       WordProduced = c("table","word","chair","pole",
+                                        "skate","car","house","shoes","girl",
+                                        "life","computer","ball","court",
+                                        "plane","sky","tree","five","help",
+                                        "shave","love"),
+                        WPcondition = c("A","B","A","C","D","B","A",
+                                        "A","A","C","D","B","F","C","D",
+                                        "A","C","D","A","B")
+                 )
+dat2 <- dat1 %>% 
+  group_by(Condition, TargetWord) %>% 
+  summarise(MeanWPcondition = mean(WPcondition == "A"))
+dat2
+
+###################
+library(tidyverse)
+
+dat1 <- tibble(Date = seq.Date(from = as.Date("2015-03-20"), 
+                               to = as.Date("2015-03-30"),
+                               length.out = 30),
+               direction = rep(c("N", "null", "U"), 10),
+               Detections = sample(x = c(1:5),
+                                   size = 30,
+                                   replace = TRUE))
+dat2 <- dat1 %>% 
+  mutate(Detections = replace(Detections,direction == "null", 0))
+
+ggplot() +
+  geom_line(data = dat2 %>% filter(direction != "null"),
+            aes(x = Date, y = Detections,
+                col = direction), size = 1) +
+  geom_line(data = dat2 %>% filter(direction == "null"),
+            aes(x = Date, y = Detections),
+            show.legend = FALSE, col = "#009E73", size = 1) +
+  theme_bw(base_size = 16, base_family = "serif") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  ggtitle("RM 2015")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual(name = "Direction",
+                     values = c("#D55E00","#0072B2"),
+                     labels = c("Downstream","Upstream")) +
+  scale_y_continuous(breaks = seq(0,10,2),
+                     expand = c(0.01,0),
+                     limits = c(0,10))
+##################
+library(tidyverse)
+
+set.seed(1)
+
+dat1 <- tibble(Date = seq.Date(from = as.Date("2015-03-20"), 
+                               to = as.Date("2015-03-31"),
+                               length.out = 30),
+               direction = rep(c("N", "null", "U"), 10),
+               Detections = sample(x = c(1:5),
+                                   size = 30,
+                                   replace = TRUE))
+dat2 <- dat1 %>% 
+  mutate(Detections = Detections - 1) %>% 
+  mutate(Detections = replace(Detections, direction == "null", 0))
+
+ggplot() +
+  geom_line(data = dat2 %>% filter(direction != "null"),
+            aes(x = Date, y = Detections,
+                col = direction), size = 1) +
+  geom_line(data = dat2 %>% filter(direction == "null"),
+            aes(x = Date, y = Detections),
+            show.legend = FALSE, col = "#009E73", size = 1) +
+  theme_bw(base_size = 16, base_family = "serif") +
+  ggtitle("RM 2015") +
+  scale_color_manual(name = "Direction",
+                     values = c("#D55E00","#0072B2"),
+                     labels = c("Downstream","Upstream")) +
+  scale_y_continuous(breaks = seq(0, 10, 2),
+                     expand = c(0.01, 0),
+                     limits = c(0, 10)) +
+  scale_x_date(date_breaks = "1 day", date_labels = "%d-%m-%Y",
+               limits = c(as.Date("2015-03-20"), as.Date("2015-03-31"))) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 0.95),
+        axis.title.x = element_blank())
+################
+library(tidyverse)
+library(scales)
+
+bounds <- c(0, -1000)
+
+test_data <- tibble(Dates = seq.Date(as.Date("2021-05-16"),
+                   as.Date("2021-06-08"),
+                   by = "1 day"),
+                   prof_loss = as.integer(runif(n = 24, min = -500, max = 500)))
+
+test_data$pos_neg <- ifelse(test_data$prof_loss > 0, "Positive", "Negative")
+
+ggplot(data = test_data, aes(x = Dates, y = prof_loss, group=1)) +
+  geom_point() +
+  geom_area(aes(fill = pos_neg)) +
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5)) + 
+  geom_line(size=.75) + 
+  geom_hline(yintercept=0, size=.5, color = "Blue") + 
+  labs(x = "Date", y = "Unrealised Profit or Loss",
+       title = "Unreaslied Profit or Loss as of 7/6/2021")
+###############
+# Load libraries
+library(tidyverse)
+library(readxl)
+library(httr)
+
+# Find some data
+url1 <- "https://www.bocsar.nsw.gov.au/Documents/lga/NewSouthWales.xlsx"
+
+# Get the data and remove missing data points (NA's)
+GET(url1, write_disk(tf <- tempfile(fileext = ".xlsx")))
+df <- read_excel(path = tf, 2L, skip = 5) %>% 
+  na.omit()
+
+df2 <- df %>% 
+  # format the data to "long format" for plotting
+  pivot_longer(cols = -c(`Premises type`)) %>%
+  # Change "Premises type" and "name" to factors
+  mutate(`Premises type` = factor(
+    `Premises type`, levels = unique(`Premises type`))
+    ) %>%
+  mutate(name = factor(
+    name, levels = unique(name))
+    ) %>%
+  # Remove the "Total" counts
+  filter(`Premises type` != "Total") 
+
+# Define colours for text (white for dark fill, black for light fill)
+hcl <- farver::decode_colour(viridisLite::inferno(length(df2$value)), "rgb", "hcl")
+label_col <- ifelse(hcl[, "l"] > 50, "black", "white")
+
+# Plot the data (log scale for fill)
+ggplot(df2, aes(y = fct_rev(`Premises type`),
+                x = name, fill = log(value))) +
+  geom_tile() +
+  geom_text(aes(label = value, color = factor(value)),
+            show.legend = FALSE, size = 2.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1.05),
+        axis.title = element_blank()) +
+  scale_color_manual(values = label_col) +
+  scale_fill_viridis_c(option = "inferno", na.value = "black")
+
+# Load the raw data and format for pheatmap (expects a matrix)
+dm <- read_excel(path = tf, 2L, skip = 5) %>% 
+  na.omit() %>%
+  column_to_rownames(var = "Premises type")
+
+# Plot the data
+pheatmap::pheatmap(as.matrix(dm), scale = "row")
+
+library(cluster)
+library(pheatmap)
+df3 <- df %>% 
+  select(`Premises type`, Robbery) %>% 
+  column_to_rownames(var = "Premises type")
+
+pheatmap(daisy(as.matrix(df3)),
+         labels_row = rownames(df3),
+         labels_col = rownames(df3))
+
+#################
+library(tidyverse)
+df <- structure(list(cntry = structure(c("Austria", "Belgium", "Italy", 
+                                   "Switzerland", "Spain", "Austria", "Belgium", "Italy", "Switzerland", 
+                                   "Spain", "Denmark"), format.stata = "%15s"), estimate = structure(c(1, 
+                                                                                                       1.5, 2, 1.20000004768372, 1.70000004768372, 4, 5.5, 6, 3, 3.09999990463257, 
+                                                                                                       4.30000019073486), format.stata = "%8.0g"), cat_f = structure(c("Widening gap", 
+                                                                                                                                                                       "Widening gap", "Widening gap", "Widening gap", "Widening gap", 
+                                                                                                                                                                       "No change", "No change", "No change", "No change", "No change", 
+                                                                                                                                                                       "No change"), format.stata = "%13s"), term = structure(c("2009", 
+                                                                                                                                                                                                                                "2009", "2009", "2009", "2009", "2008", "2008", "2008", "2008", 
+                                                                                                                                                                                                                                "2008", "2008"), format.stata = "%15s")), row.names = c(NA, -11L
+                                                                                                                                                                                                                                ), class = "data.frame")
+df %>%
+  ggplot(aes(x= estimate, y=term)) +
+  geom_point() +
+  facet_grid(cols = vars(cat_f), rows = vars(cntry))
+
+############
+library(tidyverse)
+x <- data.frame(X=c(10:1), Y=c(6,6,3,6,3,3,9,9,9,2), L=c("A","B","C","C","A","B","C","A","B","C"))
+
+
+jared_mamrot <- function(x){
+  x %>%
+  group_by(L) %>%
+  mutate(shwartz = ifelse(L == "A", X,
+                          ifelse(L == "B", 1 / X,
+                                 Y))) %>% 
+  arrange(L, shwartz) %>% 
+  select(-shwartz) 
+}
+jared_mamrot(x)
+
+GKi <- function(x){
+  y <- x$X
+  i <- x$L == "B"
+  y[i] <- y[i] * -1
+  i <- x$L == "C"
+  y[i] <- x$Y[i]
+  x[order(x$L, y),]
+}
+GKi(x)
+
+order_partly <- function(dat, ord_pat){
+  result <- dat[0,]
+  for (pattern_col in names(ord_pat)){
+    order_col <- ord_pat[[pattern_col]][1]
+    decreasing <- if (ord_pat[[pattern_col]][2] == "dec") T else F
+    partial_dat <- dat[dat$L == pattern_col,]
+    ord <- order(partial_dat[order_col], decreasing = decreasing)
+    result <- rbind(result, partial_dat[ord, ])
+  }
+  result
+}
+
+Anoushiravan_R <- function(x) {
+  x %>%
+    group_split(L) %>%
+    map_dfr(~ if(.x$L[1] == "A") {
+      .x %>% arrange(.x$X)
+    } else if(.x$L[1] == "B") {
+      .x %>% arrange(desc(.x$X))
+    } else {
+      .x %>% arrange(.x$Y)
+    })
+}
+
+res <- microbenchmark::microbenchmark(jared_mamrot(x), GKi(x), zerz(x),
+                                      Anoushiravan_R(x))
+autoplot(res)
+################
+library(tidyverse)
+library(naniar)
+
+data(airquality)
+dat1 <- airquality
+list_of_gt25_NAs <- miss_case_summary(dat1) %>% 
+  filter(pct_miss >= 25)
+
+dat2 <- dat1 %>% 
+  slice(-c(list_of_gt25_NAs$case))
+
+dat2 <- dat1[rowMeans(is.na(dat1)) < 0.25, ]
+################
+library(tidyverse)
+
+data("Puromycin")
+dat1 <- Puromycin %>% 
+  filter(state == "treated")
+dat2 <- Puromycin %>% 
+  filter(state == "untreated")
+
+mycp <- ggplot() +
+  geom_violin(data = dat1, aes(x= state, y = conc, colour = "Puromycin (Treatment1)")) + 
+  geom_violin(data = dat2, aes(x= state, y = conc, colour = "Puromycin (Treatment2)")) 
+mycp
+
+mycp2 <- ggplot() +
+  geom_violin(data = dat1, aes(x = state, y = conc, colour = "Puromycin (Treatment1)")) +
+  geom_violin(data = dat2, aes(x = state, y = conc, colour = "Puromycin (Treatment2)")) +
+  scale_x_discrete(limits = c("untreated", "treated"))
+mycp2
+################
+library(tidyverse)
+library(xgboost)
+data(agaricus.train, package='xgboost')
+data(agaricus.test, package='xgboost')
+train <- agaricus.train
+dtrain <- xgb.DMatrix(train$data, label=train$label)
+test <- agaricus.test
+dtest <- xgb.DMatrix(test$data, label=test$label)
+
+trained_model <- xgb.train(data = dtrain, max_depth = 2,
+                           eta = 0.1, nthread = 4, nrounds = 50,
+                           watchlist = list(train = dtrain, eval = dtrain),
+                           objective = "binary:logistic")
+head(predict(trained_model, dtest))
+
+# https://github.com/dmlc/xgboost/blob/master/R-package/R/xgb.Booster.R
+test_df <- iris[0:105,]
+num_class <- 3
+set.seed(11)
+dtrain <- xgb.DMatrix(data = as.matrix(test_df[, -5]), label = as.numeric(test_df$Species) - 1)
+bst <- xgboost(dtrain, max_depth = 6, eta = 0.1, nthread = 2, nrounds = 1, subsample = 0.5,
+               objective = "multi:softprob", num_class = num_class,
+               base_score = seq(from=0.01, to=0.99, length.out=105))
+# predict for softmax returns num_class probability numbers per case:
+pred <- predict(bst, dtrain)
+
+################
+library(tidyverse)
+library(ggpubr)
+library(minerva)
+library(ggpmisc)
+
+data("Puromycin")
+dat <- Puromycin
+cm_data <- as.numeric(unlist(dat))
+res <- cor.test(cm_data, cm_data, method = "pearson")
+res
+
+cm_df <- data.frame(cm_data1 = cm_data, cm_data2 = cm_data)
+ggscatter(cm_df, "cm_data1", "cm_data2",
+          add = "reg.line", title = "Correlation matrix between time points of cdc15 temperature-sensitive mutant", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson",
+          xlab = "time points", ylab = "time points", legend = "right", gradient_color = c("blue", "white", "red"))
+
+
+data("Puromycin")
+dat <- Puromycin
+res <- cor.test(dat$conc, dat$rate, method = "pearson")
+res
+ggscatter(data = dat, x = "conc", y = "rate",
+          add = "reg.line", title = "Correlation matrix between time points of cdc15 temperature-sensitive mutant", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson",
+          xlab = "time points", ylab = "time points", legend = "right", gradient_color = c("blue", "white", "red"))
+
+plot(dat$rate ~ dat$conc)
+fit <- lm(dat$rate ~ log(dat$conc))
+summary(fit)
+x <- dat$conc
+y <- predict(fit, newdata = list(x = dat$conc), interval = "confidence")
+matlines(x,y)
+#################
+library(tidyverse)
+library(ggpubr)
+library(minerva)
+library(ggpmisc)
+
+data(Spellman)
+dat <- Spellman
+cdc15 <- select(dat, 1, 23:46)
+
+cdc15 %>%
+  pivot_longer(cols = -c(time)) %>%
+  ggplot(aes(x = time, y = value)) +
+  geom_point() +
+  facet_wrap(~ name, ncol = 4) +
+  geom_smooth(formula = y ~ x, method = "lm") +
+  stat_poly_eq(formula = y ~ x,
+               aes(label = paste(..eq.label..,
+                                 ..rr.label..,
+                                 sep = "~~~~")), 
+               parse = TRUE)
+
+mat <- as.matrix(cdc15)[,-1]
+rownames(mat) <- cdc15$time
+heatmap(t(mat), Colv = NA, xlab = "Time")
+
+pheatmap::pheatmap(t(mat), cluster_cols = FALSE)
+
+cor.test(x = mat[,1], y = mat[,2])
+
+ggscatter(cdc15, x = "YAR035W", y = "YAR043C", add = "reg.line",
+          title = "Correlation matrix between time points of cdc15 temperature-sensitive mutant",
+          conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson",
+          xlab = "log ratio YAR035W", ylab = "log ratio YAR043C")
+
+ggscatter(cdc15, x = "YAR035W", y = "YAR043C", fill = "time", shape = 21, add = "reg.line",
+          title = "Correlation matrix between time points of cdc15 temperature-sensitive mutant",
+          conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson",
+          xlab = "log ratio YAR035W", ylab = "log ratio YAR043C")
+
+corrplot::corrplot(corr = mat, is.corr = FALSE, method = "color")
+###################
+library(tidyverse)
+dat1 <- read.table(text = "HUC8 YEAR RO_MM
+       bcc1_45Fall_1020004 1961 112.0
+       bcc1_45Fall_1020004 1962 243.7
+       bcc1_45Fall_1020004 1963 233.3
+       bcc1_45Fall_1020004 1964 190.3
+     bcc1_M_45Fall_1020004 1961 100.9
+     bcc1_M_45Fall_1020004 1962 132.3
+     bcc1_M_45Fall_1020004 1963 255.1
+     bcc1_M_45Fall_1020004 1964 281.9
+     bnuesm_45Fall_1020004 1961  89.0
+     bnuesm_45Fall_1020004 1962  89.5
+     bnuesm_45Fall_1020004 1963 126.8
+     bnuesm_45Fall_1020004 1964 194.3
+    canesm2_45Fall_1020004 1961 186.6
+    canesm2_45Fall_1020004 1962 197.4
+    canesm2_45Fall_1020004 1963 229.1
+    canesm2_45Fall_1020004 1964 141.8",
+           header = TRUE)
+
+dat1 %>% 
+  pivot_wider(names_from = YEAR, values_from = RO_MM)
+
+dat1 %>%
+  ggplot(aes(x = YEAR, y = RO_MM, group = HUC8, color = HUC8)) +
+  geom_line() +
+  scale_color_manual(values = c("black", viridis::viridis(3, alpha = 0.33)))
+
+
+dat1 %>%
+  mutate(group = ifelse(str_detect(string = HUC8, pattern = "bcc"),
+                        "group_bcc", "group_others")) %>%
+  filter(group == "group_bcc") %>% 
+  ggplot(aes(x = YEAR, y = RO_MM, group = HUC8, color = HUC8)) +
+  geom_line() +
+  ggtitle("bcc csv files only")
+
+
+#################
+library(tidyverse)
+#install.packages("flextable")
+library(flextable)
+
+df <- data.frame(stringsAsFactors = FALSE,
+                 A = c("xyz", "xyz", "abc", "abc", "abc"),
+                 B = c("C1 : 12", "C2 : 13", "C1 : 12", "C2 : 34", "C3 : 43"),
+                 C = c(23L, 23L, 43L, 43L, 43L))
+
+merge_custom <- function(ft, x, columns){
+  z <- rle(x)
+  rows_at <- cumsum(z$lengths) - z$lengths + 1
+  
+  for(i in seq_along(rows_at)){
+    for(j in columns)
+      ft <- merge_at(x = ft, i = seq( rows_at[i], rows_at[i] + z$lengths[i] - 1), j = j)
+  }
+  
+  ft
+}
+
+flextable(df) %>% 
+  merge_custom(x = df$A, columns = 1) %>%
+  theme_box()
+
+flextable(df) %>%
+  theme_box() %>% 
+  merge_v(j = ~A)
+##################
+library(tidyverse)
+#install.packages("hunspell")
+#install.packages("textclean")
+library(hunspell)
+library(textclean)
+
+s <- textclean::replace_names(foo_data)
+trimws(gsub(sprintf('\\b(%s)\\b', 
+                    paste0(unlist(hunspell::hunspell(s)), collapse = '|')), '', s))
+##############
+library(tidyverse)
+# random data
+d <- data.frame(x = rep(c("AT130", "DEA1A", "DEA2C", "SE125", "SE232"), 4),
+                y = sample(1:10, 20, replace = TRUE),
+                z = sample(1:10, 20, replace = TRUE),
+                w = sample(1:10, 20, replace = TRUE))
+colnames(d) <- c("id", "typeA", "typeB", "typeC")
+
+for (i in colnames(d[,2:ncol(d)])) {
+  type <- ensym(i)
+  p <- ggplot(d, aes(y = !!type, x = id, fill = id)) +
+    geom_boxplot() +
+    ggtitle(type)
+  print(p)
+}
+
+################
+library(tidyverse)
+vec1 <- rep(1:10, each = 5)
+vec2 <- c(0.98, 0.99, 1, 1.01, 1.02)
+
+vec3 <- c()
+for (i in split(vec1, ceiling(seq_along(vec1)/5))){
+  result <- i * sample(vec2)
+  vec3 <- c(vec3, result)
+}
+
+vec3
+
+mean(c(vec3[1:5]))
+mean(c(vec3[6:10]))
+##################
+library(tidyverse)
+case<-c(3,3,3,57,57,57,57,9,9,9)
+a<-c(12,15,20,12,14,15,17,14,16,19)
+c<-c(25,25,25,21,21,21,21,24,24,24)
+
+df <- data.frame(case,a,c)
+df %>%
+  group_by(case) %>% 
+  mutate(b = lead(a - 1, 1L, default = last(c))) %>% 
+  select(case, a, b, c)
+
+#################
+library(tidyverse)
+# summarySE func from
+# http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/#Helper%20functions
+## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
+##   data: a data frame.
+##   measurevar: the name of a column that contains the variable to be summariezed
+##   groupvars: a vector containing names of columns that contain grouping variables
+##   na.rm: a boolean that indicates whether to ignore NA's
+##   conf.interval: the percent range of the confidence interval (default is 95%)
+
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+  library(plyr)
+  # New version of length which can handle NA's: if na.rm==T, don't count them
+  length2 <- function (x, na.rm=FALSE) {
+    if (na.rm) sum(!is.na(x))
+    else       length(x)
+  }
+  
+  # This does the summary. For each group's data frame, return a vector with
+  # N, mean, and sd
+  datac <- ddply(data, groupvars, .drop=.drop,
+                 .fun = function(xx, col) {
+                   c(N    = length2(xx[[col]], na.rm=na.rm),
+                     mean = mean   (xx[[col]], na.rm=na.rm),
+                     sd   = sd     (xx[[col]], na.rm=na.rm)
+                   )
+                 },
+                 measurevar
+  )
+  
+  # Rename the "mean" column    
+  datac <- rename(datac, c("mean" = measurevar))
+  
+  datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+  
+  # Confidence interval multiplier for standard error
+  # Calculate t-statistic for confidence interval: 
+  # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+  ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+  datac$ci <- datac$se * ciMult
+  return(datac)
+}
+
+dat1 <- read.table(text = "rownumber Consonant     Place       C1 C1_xsampa
+1  Singleton  Bilabial 149.8670        tS
+2   Geminate  Bilabial 161.3066        tS
+3  Singleton Retroflex 115.9713         f
+4   Geminate Retroflex 143.3766         f
+5  Singleton    Dental 130.1839         k
+6  Singleton    Dental 118.7762         k
+7   Geminate    Dental 122.1802         k
+8  Singleton     Velar 112.3296         s
+9   Geminate     Velar 142.4654         s
+10 Singleton  Bilabial 245.7727        tS
+11  Geminate  Bilabial 288.2960        tS
+12  Geminate Retroflex 128.9104         f
+13 Singleton    Dental 103.7978         k
+14  Geminate    Dental 135.6264         k
+15 Singleton    Dental 208.1685         k",
+                   header = TRUE)
+
+tgc <- summarySE(dat1, measurevar = "C1", groupvars = c("Consonant", "Place"))
+
+ggplot(tgc, aes(x=Place, y=C1,
+                colour=Consonant,
+                group = Consonant)) + 
+  geom_errorbar(aes(ymin=C1-se,
+                    ymax=C1+se),
+                width = 0.2,
+                position = position_dodge(width = 0.2)) +
+  geom_line(position = position_dodge(width = 0.2)) +
+  geom_point(position = position_dodge(width = 0.2))
+##################
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(wesanderson)
+#install.packages("wesanderson")
+
+file_url1 <- url("https://raw.githubusercontent.com/johnsnow09/covid19-df_stack-code/main/df_vaccination.csv")
+
+df_vaccination <- read.csv(file_url1)
+
+df_vaccination2 <- df_vaccination %>%
+  mutate(Updated.On = as.Date(Updated.On))
+
+df_vaccination2 %>% 
+  filter(Updated.On > ymd("2021-02-28"),
+         Updated.On < ymd("2021-06-01")) %>% 
+  mutate(month_abbr = month(Updated.On, label = TRUE, abbr = TRUE)) %>% 
+  group_by(month_abbr, State) %>% 
+  summarise(monthly_ind_vaccinated = sum(Total.Individuals.Vaccinated_Dailycalc, 
+                                         na.rm = TRUE),
+            Population = first(Population), .groups = "drop") %>% 
+  group_by(State) %>% 
+  mutate(prc_vaccinated_per_pop = monthly_ind_vaccinated / Population,
+         state_max = max(prc_vaccinated_per_pop),
+         state_min = min(prc_vaccinated_per_pop)) %>% 
+  na.omit() %>%
+  ungroup() %>% 
+  mutate(State = fct_reorder(State, state_max, max, .desc = TRUE) 
+  ) %>% 
+  ggplot() +
+  geom_segment(aes(x = State, xend = State, y = state_min, yend = state_max),
+               col = "grey") +
+  geom_point(aes(x = State, y = prc_vaccinated_per_pop,
+                 col = as.factor(month_abbr))) +
+  geom_point(aes(x = State, y = prc_vaccinated_per_pop,
+                 col = as.factor(month_abbr), size = month_abbr), show.legend = FALSE) +
+  scale_y_continuous(labels = percent) +
+  scale_color_manual(values = wes_palette("Darjeeling1", type = "discrete")) +
+  scale_size_manual(values = c(2,2,3)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = -0.001),
+        strip.text = element_blank(),
+        panel.grid.major = element_blank(),
+        legend.position = c(0.8, 0.85)) +
+  labs(title = "Vaccination rates in each Indian state",
+       caption = "2021-06-11",
+       color = "Proportion of Vaccinations",
+       x = "", y = "")
+####################
+library(devtools)
+#install_github("cran/DMwR")
+library(DMwR)
+####################
+library(tidyverse)
+df1 <- read.table(text = "Gene P1 P2 P3
+A1 6 8 2
+A2 12 6 3
+A3 8 4 8", header = TRUE)
+
+df1 %>% 
+  mutate(across(.cols = -c(Gene), .fns = ~ .x / P3))
+
+#################
+library(tidyverse)
+df1 <- structure(list(Pool_1.sf = c(1.04654112319058, 0.908757359307814 ), Pool_10.sf = c(1.09143254057473, 0.763847944339038), Pool_11.sf = c(1.18750942376232, 0.970606492107592), Pool_12.sf = c(1.40039457695623, 0.987404435084985 ), Pool_13.sf = c(1.40110264045617, 1.05184583712403), Pool_14.sf = c(0.975272918230445, 1.05978729086064), Pool_15.sf = c(1.18870377730237, 1.350632186878 ), Pool_16.sf = c(1.25322756941453, 1.18822754009871), Pool_17.sf = c(1.29750766166164, 0.561735111884727), Pool_18.sf = c(1.27533917021409, 1.38423737777244 ), Pool_19.sf = c(0.918846998358604, 0.95201145069032), Pool_2.sf = c(0.748425883461423, 0.618517135274528), Pool_20.sf = c(1.35027456541736, 1.11503741384757 ), Pool_21.sf = c(1.06155444204363, 0.991570644521018), Pool_22.sf = c(1.64504600710891, 1.07862501013554), Pool_23.sf = c(1.51097405304331, 0.971834605384123 ), Pool_24.sf = c(1.18420663655483, 0.881393761143161), Pool_25.sf = c(0.925122055385438, 0.93313232911786), Pool_26.sf = c(2.12016328112954, 0.829308431444176 ), Pool_27.sf = c(1.59552456085871, 0.705278334816745), Pool_28.sf = c(1.75141617967796, 0.863808031900547), Pool_29.sf = c(1.71320920062242, 0.782291400605908 ), Pool_3.sf = c(1.09209110640701, 0.776979928448013), Pool_30.sf = c(0.925564956736256, 0.905870068022084), Pool_31.sf = c(1.00114849632652, 0.713896646497438 ), Pool_32.sf = c(0.769653226223374, 1.01812180736834), Pool_33.sf = c(1.64152662148587, 0.912970524890157), Pool_34.sf = c(1.39446534544181, 0.892464822723893 ), Pool_35.sf = c(1.36553718507047, 0.709121064448927), Pool_36.sf = c(1.48178605247809, 0.766690878721894), Pool_37.sf = c(1.05050355917415, 0.862090327153509 ), Pool_38.sf = c(1.36989138311191, 1.01473830511752), Pool_39.sf = c(1.42872045770954, 1.13176474162602), Pool_4.sf = c(1.11960747784989, 0.665514805707436 ), Pool_40.sf = c(1.90897625098439, 1.28419857359682), Pool_41.sf = c(1.2570145072185, 0.987813170293439), Pool_43.sf = c(1.14927112622372, 1.33241620047574 ), Pool_44.sf = c(1.02884805988699, 1.1077339415536), Pool_45.sf = c(1, 1), Pool_46.sf = c(1.15692580371101, 1.01663753799148), Pool_47.sf = c(1.02161799920975, 0.893420612254083), Pool_48.sf = c(0.991350522776138, 0.857531005677309 ), Pool_49.sf = c(0.666054364361721, 0.95128169066564), Pool_5.sf = c(1.27677591889858, 0.65869398169343), Pool_50.sf = c(1.04592846997826, 0.820965050229932 ), Pool_51.sf = c(1.46227623256989, 1.16138433421938), Pool_52.sf = c(1.1826746106421, 1.33429257056276), Pool_53.sf = c(1.16041540250292, 0.878127525893012 ), Pool_54.sf = c(1.14285567434696, 0.870429885808645), Pool_55.sf = c(1.40863161629042, 0.485422488325543), Pool_56.sf = c(1.81157566249543, 0.519084970767436 ), Pool_58.sf = c(1.69798017279487, 1.34651488521988), Pool_59.sf = c(1.55336058362464, 0.982570924872293), Pool_6.sf = c(0.769881996423631, 0.388931536871056 ), Pool_60.sf = c(1.36877679300045, 1.02579768967408), Pool_61.sf = c(1.34960258409398, 0.983191813100761), Pool_62.sf = c(1.08159654058587, 0.76318904250517 ), Pool_63.sf = c(1.98209270942409, 1.05152970776951), Pool_64.sf = c(1.86946484050877, 1.06489241167699), Pool_65.sf = c(1.48159508541161, 0.89626404845365 ), Pool_66.sf = c(1.42400489307256, 1.30732410445944), Pool_7.sf = c(1.17869553929846, 0.620813490764102), Pool_8.sf = c(1.35783021860687, 0.77620120083204 ), Pool_9.sf = c(1.32884787662603, 0.758057408306258)), row.names = c("Glyma.01G000400", "Glyma.01G000900"), class = "data.frame")
+
+df1 %>%
+  rownames_to_column() %>%
+  pivot_longer(cols = -c(rowname)) %>%
+  mutate(name = factor(name, levels = unique(name))) %>%
+  ggplot(aes(x = name, y = value, group = rowname, color = rowname)) +
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1.05))
+##################
+library(tidyverse)
+
+tribble(
+  ~description, ~y, ~x,
+  "apples", 3.4, 1.1,
+  "oranges", 5.6, 2.4,
+  "mangos", 2.3, 4.8
+) %>%
+  {ggplot(data = ., aes(y = y, x = x)) +
+      scale_x_continuous(
+        breaks = .$x,
+        labels = .$description
+      ) +
+      geom_point() +
+      geom_line()
+    }
+###############
+# Load libraries
+library(tidyverse)
+library(zoo)
+
+# Create data
+df <- data.frame(week = rep(seq(from = 1, to = 52, by = 1), times = 4),
+                 col1 = seq(from = 5, to = 5 * 52 * 4, by = 5),
+                 col2 = seq(from = 10, to = 10 * 52 * 4, by = 10),
+                 brand = rep(c("brand a", "brand b",
+                               "brand a", "brand b"),
+                             each = 52),
+                 year = rep(2018:2019, each = 104))
+
+# Group and calculate rolling means
+df2 <- df %>%
+  group_by(year, brand) %>% 
+  mutate(across(.cols = starts_with("col"),
+         .fns = ~ rollmean(x = .x, k = 4, fill = NA, align = "left"))) %>% 
+  ungroup()
+################
+library(tidyverse)
+f_varname <- sym("cyl")
+ggplot(mpg, aes(displ, cty)) +
+  geom_point() +
+  facet_grid(cols = vars({{f_varname}}))
+################
+library(tidyverse)
+df <- read.table(text = "Document n word tf-idf
+                  1       10 kohl 0,22
+                  2       8  x    0,5
+                  3       4  b    0,2", 
+                  header = TRUE)
+df %>% 
+  filter(str_length(word) >= 2)
+###################
+library(tidyverse)
+
+stores <- data.frame(
+  stringsAsFactors = FALSE,
+                       state = c("california","california","nevada","nevada","arizona",
+                                 "arizona"),
+                       store = c("target",
+                                 "walmart","target","walmart","target",
+                                 "walmart"),
+     num_locations = c(20L, 29L, 10L, 12L, 15L, 19L)
+          )
+
+stores %>%
+  group_by(store) %>%
+  summarise(avg_num_locations = mean(num_locations))
+##############
+library(tidyverse)
+library(lubridate)
+twitter %>%
+  mutate(Date = as.Date(Date)) %>%
+  mutate(time = case_when(Date %within%
+                     interval(ymd("2019-05-01"),
+                              ymd("2020-03-31")) ~ "code 1",
+                   Date %within%
+                     interval(ymd("2020-04-01"),
+                              ymd("2020-06-30")) ~ "code 2",
+                   Date %within%
+                     interval(ymd("2020-07-01"),
+                              ymd("2020-12-31")) ~ "code 3",
+                   Date %within%
+                     interval(ymd("2021-01-01"),
+                              ymd("2021-04-30")) ~ "code 4")) %>%
+  mutate(time = factor(time, levels = c("code 1", "code 2",
+                                        "code 3", "code 4"))) %>%
+  group_by(username, agegroup, time, .drop = FALSE) %>%
+  summarise("mean(compound)" = mean(compound, na.rm = TRUE))
+#################
+library(tidyverse)
+
+dt <- data.frame(stringsAsFactors = FALSE, Obs = c(1L, 2L, 3L, 4L),
+           Message = c("a : 3 b : 5", "c : 4 a : 2 d : 9", NA, "b : 3"))
+
+dt %>%
+  separate_rows(Message, sep = '\\s(?=[a-z])') %>%
+  separate(Message, c('variable', 'value'), sep = ' : ', fill = 'right', convert = TRUE)
+
+#################
+library(tidyverse)
+dat1 <- tibble::tribble(
+  ~state, ~`2020-01-01`, ~`2020-01-05`, ~`2020-01-06`, ~`2020-01-10`,
+    "AZ",            NA,         0.078,         -0.06,            NA,
+    "AK",          0.09,            NA,            NA,           0.1,
+    "MS",          0.19,          0.21,            NA,          0.38
+  )
+
+dat1 %>% 
+  pivot_longer(-c(state)) %>%
+  mutate(dates = as.Date(name)) %>%
+  ggplot(aes(x = dates, y = value)) +
+  geom_point() +
+  facet_grid(rows = vars(state)) +
+  scale_x_date(date_breaks = "1 day", name = "", limits = c(as.Date("2019-12-25"), as.Date("2020-01-15"))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1.05))
+###############
+library(data.table)
+library(tidyverse)
+
+df <- fread("test.txt", data.table = FALSE,
+                        fill = TRUE, header = FALSE) %>% 
+  separate(V1, sep = ": ", into = c("names", "values")) %>% 
+  na.omit() %>% 
+  mutate(id = rep(1:(nrow(.)/3), each = 3)) %>% 
+  pivot_wider(names_from = names, values_from = values) %>% 
+  select(-c(id))
+################
+library(tidyverse)
+library(data.table)
+# Example data
+df <- data.frame(
+  stringsAsFactors = FALSE,
+               ROW = c(2L, 7L, 8L, 9L, 10L),
+                ID = c("REC1000023","REC1000032",
+                       "REC1000066","REC1000078","REC1000099"),
+               SEX = c("F", "M", "M", "M", "M"),
+              RACE = c("1.Black","6.White","4.Asian",
+                       "6.White","5.Multiracial")
+)
+
+# Create new columns
+df %>% 
+  mutate(Black = ifelse(RACE == "1.Black", 1, 0),
+         White = ifelse(RACE == "6.White", 1, 0),
+         Other = ifelse(RACE != "1.Black" & RACE != "6.White",
+                        1, 0))
+
+df %>% mutate(Black = +str_detect(RACE,'Black'),
+              White = +str_detect(RACE,'White'),
+              Other = +(!str_detect(RACE,'Black|White')))
+
+df2 <- data.frame(stringsAsFactors = FALSE,
+                  ROW = 1:10000,
+                  ID = rep(c("REC1000023","REC1000032",
+                             "REC1000066","REC1000078",
+                             "REC1000099"), times = 2000),
+                  SEX = sample(c("F", "M"),
+                               replace = TRUE,
+                               size = 10000),
+                  RACE = sample(c("1.Black","6.White","4.Asian",
+                           "6.White","5.Multiracial"),
+                           replace = TRUE,
+                           size = 10000))
+
+library(reshape2)
+dcast_func <- function(df){
+  dcast(data = df, ROW + ID + SEX ~ RACE, length)
+}
+
+ronak_func <- function(df){
+  df %>%
+    mutate(col = sub('\\d+\\.', '', RACE), 
+           col = replace(col, !col %in% c('Black', 'White'), 'Other')) %>%
+    pivot_wider(names_from = col, values_from = col, 
+                values_fn = length, values_fill = 0)
+}
+
+jared_func <- function(df){
+  df %>% 
+    mutate(Black = ifelse(RACE == "1.Black", 1, 0),
+           White = ifelse(RACE == "6.White", 1, 0),
+           Other = ifelse(RACE != "1.Black" & RACE != "6.White", 1, 0))
+}
+
+karthik_func <- function(df){
+  df %>% mutate(Black = +str_detect(RACE,'Black'),
+                White = +str_detect(RACE,'White'),
+                Other = +(!str_detect(RACE,'Black|White')))
+}
+
+jpdugo17_func <- function(df){
+  map_dfc(list('1.Black', '6.White'), ~ transmute(df, '{str_sub(.x, 3, -1)}' := if_else(RACE == .x, 1, 0))) %>% 
+    mutate(other = if_else(Black + White == 1, 0, 1)) %>% cbind(df, .)
+}
+
+jared_func_dt <- function(df){
+  setDT(df)
+  df[, Black := +(df$RACE == "1.Black")][, White := +(df$RACE == "6.White")][, Other :=  1 - (df$Black | df$White)]
+}
+
+GKi1_func <- function(df) {
+  df$Black <- +(df$RACE == "1.Black")
+  df$White <- +(df$RACE == "6.White")
+  df$Other <- 1 - (df$Black | df$White)
+  df
+}
+
+GKi2_func <- function(df) {
+  df$Black <- +grepl("Black", df$RACE, fixed = TRUE)
+  df$White <- +grepl("White", df$RACE, fixed = TRUE)
+  df$Other <- 1 - (df$Black | df$White)
+  df
+}
+
+library(microbenchmark)
+res <- microbenchmark(ronak_func(df),
+                      jared_func(df),
+                      karthik_func(df),
+                      jpdugo17_func(df),
+                      jared_func_dt(df),
+                      GKi1_func(df),
+                      GKi2_func(df))
+autoplot(res)
+###############
+library(tidyverse)
+df <- structure(list(target = c(24.4, 24.4, 24.4, 24.4, 24.4, 24.4, 
+                                24.4, 24.4, 24.4, 24.4), zone1 = c(23.5, 23.3, 23.5, 23.7, 23.8, 
+                                                                   23.7, 23.6, 23.6, 23.8, 23.7), zone2 = c(24.3, 24, 24.1, 24.4, 
+                                                                                                            24.7, 24.6, 24.5, 24.6, 24.7, 24.7), zone3 = c(24.8, 24.8, 24.5, 
+                                                                                                                                                           24.3, 24.1, 23.8, 24.2, 24.2, 24.2, 23.8), zone4 = c(24.5, 24.5, 
+                                                                                                                                                                                                                24.4, 24.5, 24.4, 24.3, 24.4, 24.9, 24.5, 24.5), zone5 = c(24.3, 
+                                                                                                                                                                                                                                                                           24.4, 24.5, 24.5, 24.5, 24.4, 24.6, 24.6, 24.8, 24.9), zone6 = c(23.1, 
+                                                                                                                                                                                                                                                                                                                                            23, 23.1, 23.1, 23, 22.8, 22.6, 22.7, 23.1, 23.2)), row.names = c(NA, 
+                                                                                                                                                                                                                                                                                                                                                                                                              -10L), class = c("tbl_df", "tbl", "data.frame"))
+t_test <- function(x, y) {
+  tryCatch(
+    round(t.test(x=x, mu=mean(y))$p.value, 3),
+    error=function(e) NA)
+}
+
+t.test(x = df$zone2, mu = 24.4)
+
+df %>%
+  mutate(across(.cols = zone1:zone6,
+                         .fns = ~ t_test(x = .x, y = target))) %>%
+  pivot_longer(cols = -target) %>%
+  group_by(name) %>%
+  summarise(mean(value), mean(result$zone2))
+
+###################
+library(tidyverse)
+library(vroom)
+library(ggthemes)
+options(timeout = 2400)
+NYSdata <- vroom("https://www.nycourts.gov/LegacyPDFS/court-research/OCA-STAT-Act.csv")
+new <- c("row_num", "court_type", "region", "district", "county", "court", "arresting_agency", "arrest_type", "arraign_year", "arraign_month", "top_charge_at_arraignment", "severity", "weight", "law", "article_section", "attempt_flag", "gender", "ethnicity", "race", "arrest_age", "docket_status", "disposition_type", "disposition_detail", "dismissal_reason", "most_severe_sentence", "fines_imposed", "fees_imposed", "surcharges_imposed")
+names(NYSdata) <- new
+NYSdata <- select(NYSdata, -c("row_num"))
+NYSdata %>%
+  filter(grepl("[[:alpha:]]+", x = race)) %>%
+  ggplot(aes(x = race)) +
+  geom_bar() +
+  xlab("Court") + 
+  ylab("Number of People") + 
+  labs(title = "Racial Breakdown of New York State Courts") + 
+  theme_economist() + 
+  theme(plot.title = element_text(hjust = 0.5))+
+  geom_text(stat='count', aes(label=..count..), vjust = -.3)
+#############
+library(tidyverse)
+library(ggridges)
+library(viridis) 
+library(rstatix)
+
+data(iris)
+iris$treatment <- rep(c("A","B","C"), length(iris$Species)/3)
+mydf <- gather(iris,Variable,value,Sepal.Length:Petal.Width)
+
+ggplot(mydf) +
+  geom_tile(aes(x = value, y = Species, width = 1, height = 0.5), alpha = 0.1) +
+  stat_density_ridges(data = mydf, aes(x = value, y = Species, fill = factor(stat(quantile))),
+                      geom = "density_ridges_gradient",
+                      calc_ecdf = TRUE,
+                      quantiles = c(0.1, 0.9), 
+                      scale = 1) +
+  scale_fill_manual(
+    name = "Probability", values = c("#FF0000A0", "light grey", "#0000FFA0"),
+    labels = c("(0, 0.1]", "(0.1, 0.9]", "(0.9, 1]")) +
+  coord_cartesian(xlim=c(-10, 10)) +
+  theme_bw() +
+  facet_wrap(~Variable, ncol = 1)
+##############
+library(tidyverse)
+library(rvest)
+bun_1 <- read_html("https://www.bunnings.com.au/search/products?q=paint&sort=BoostOrder&page=1/")
+part_1 <- data.frame(  
+  paint = bun_1 %>% html_nodes(".product-title") %>% html_text(), 
+  price = bun_1 %>% html_nodes(".price-medium-size p") %>% html_text()
+)
+###############
+# Load libraries
+library(tidyverse)
+
+# Create a 'fake' dataset with 49 variables (50 incl rownumber) and 13 obs
+df_example <- data.frame(row = rep(c(1:13), 49),
+                         variables = rep(x = c(letters, LETTERS)[1:49], each = 13),
+                         values = runif(n = 49 * 13, 0, 100)) %>% 
+  pivot_wider(id_cols = row, names_from = variables, values_from = values)
+df_example
+
+# Create a new column called "sub_id"
+df_example_with_sub_id <- df_example %>%
+  mutate(sub_id = paste("r", sprintf("%02d", sample(1:13)), sep = ""))
+df_example_with_sub_id
+
+# Select rownumber, sub_id, and a few columns to show that it worked
+df_selected_columns <- df_example_with_sub_id %>%
+  select(row, sub_id, a, b, c, d)
+df_selected_columns
+
+# Arrange obs by sub_id
+arranged_by_sub_id <- df_selected_columns %>% 
+  arrange(sub_id)
+arranged_by_sub_id
+
+#############
+library(tidyverse)
+country_num <- read.table(
+  text = "Country     num
+          Other       5
+          Other       6
+          Other       16
+          USA         30
+          UK          25
+          China       12",
+  header = TRUE
+)
+
+country_num %>%
+  group_by(Country) %>%
+  summarise(num = sum(num), n = n())
+#############
+library(tidyverse)
+df <- data.frame(
+  stringsAsFactors = FALSE,
+  Sites = c("Site 1","Site 2","Site 3",
+            "Site 4","Site 5","Site 6","Site 7","Site 8","Site 9",
+            "Site 10","Site 11"),
+  Values = c(184.7955548,171.1466314,
+             245.5952181,188.3072784,259.9438698,210.3448318,
+             173.7977541,182.5497301,198.7985429,188.0458496,215.5709303),
+  Groups = c(1, 1, 3, 3, 2, 3, 1, 3, 3, 2, 2))
+
+df %>%
+  arrange(Groups, Values) %>%
+  mutate(name = factor(Sites, levels = Sites),
+         Groups = factor(Groups)) %>%
+  ggplot(aes(x = name, y = Values, fill = Groups)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c ('royalblue1', 'slategrey', 'yellow1'))+
+  ylab("Values")+
+  xlab("")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+###################
+library(tidyverse)
+
+df <- data.frame(y=1:10, x=1:10, col=c("a", "b"))  # Added col
+h <- 7.1
+ggplot(df, aes(x = x, y = y)) + 
+  geom_point(aes(color = col)) +
+  geom_hline(yintercept = h, col = "red") +
+  geom_text(data = data.frame(x = nrow(df) - 2, y = h),
+            aes(x, y), label = paste('\u2193', "max-f1 threshold", ""), vjust = -1, color = "red")
+#################
+# Load libraries
+library(tidyverse)
+
+# Create fake data
+subjects <- data.frame(height = rnorm(100, 1.6, 0.2),
+                       weight = rnorm(100, 75, 20))
+
+# Calculate BMI and categorise subjects per wikipedia
+subjects %>%
+  mutate(BMI = weight / (height^2)) %>%
+  mutate(`BMI category` = case_when(
+    BMI < 15 ~ "Very severely underweight",
+    BMI >= 15 & BMI < 16 ~ "Severely underweight",
+    BMI >= 16 & BMI < 18.5 ~ "Underweight",
+    BMI >= 18.5 & BMI < 25 ~ "Normal",
+    BMI >= 25 & BMI < 30 ~ "Overweight",
+    BMI >= 30 & BMI < 35 ~ "Moderately obese",
+    BMI >= 35 & BMI < 40 ~ "Severely obese",
+    BMI >= 40 ~ "Very severely obese")
+  )
+
+library(palmerpenguins)
+sapply(penguins, function(x) if("factor" %in% class(x)) { 
+  prop.table(table(x))
+  }
+)
+sapply(df, function(x) if("factor" %in% class(x)) {prop.table(table(x))})
+
+df <- mtcars[, c("am", "gear")]
+df$am <- factor(df$am); df$gear <- factor(df$gear)
+prop.table(table(penguins))
+#################
+# Load libraries
+library(tidyverse)
+library(lubridate)
+
+# Generate a fake dataset (minimal reproducible example)
+df <- data.frame(Date = seq.Date(from = ymd("2021-01-01"),
+                                 to = ymd("2021-12-31"),
+                                 by = "1 day"),
+                 Volume = runif(365, 0, 4e+08))
+
+plot_labels <- c(
+  "1" = "First Quarter, 2021",
+  "2" = "Second Quarter, 2021",
+  "3" = "Third Quarter, 2021",
+  "4" = "Fourth Quarter, 2021"
+)
+# Plot the fake data
+df %>%
+  mutate(quarter = cut.Date(Date, breaks = "quarter", labels = FALSE)) %>%
+  ggplot(., aes(x = Date, y = Volume)) +
+  geom_col(stat = "identity",
+           width = 0.9, 
+           fill = "coral",
+           alpha = 0.5,
+           colour = "black",
+           position = "dodge") +
+  scale_x_date(date_breaks = "1 day", labels = scales::date_format("%m/%d")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Volume Sold by Date") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~ quarter, ncol = 1, scales = "free_x",
+             labeller = labeller(quarter = plot_labels))
+
+# Save the plot
+ggsave(filename = "example_1.png", width = 60, height = 10, limitsize = FALSE)
+##################
+#install.packages("causalweight")
+library(causalweight)
+data(JC)
+
+x0=JC[,2:29]
+x1=JC[,30:36]
+d1=JC[,37]
+d2=JC[,38]
+y2=JC[,44]
+
+output=dyntreatDML(y2=y2, d1=d1, d2=d2, x0=x0, x1=x1)
+cat("dynamic ATE: ",round(c(output$effect),3),", standard error: ",
+    round(c(output$se),3), ", p-value: ",round(c(output$pval),3))
+output$ntrimmed
+####################
+# Load libraries
+library(causalweight)
+library(naniar)
+library(xgboost)
+
+# Load the data
+mydata4 <- read.csv("for_dyn.csv", check.names = FALSE)
+
+# Rename the potentially-problematic variable ""
+colnames(mydata4)[1] <- "rownumber"
+
+# Check for missing values (not necessary, just good practice)
+naniar::any_miss(mydata4)
+
+x0 = mydata4[,4:7]
+x1 = mydata4[,10:12]
+
+d1 = sample(x = c(0,1), size = nrow(mydata4), replace = TRUE)
+d2 = sample(x = c(0,1), size = nrow(mydata4), replace = TRUE)
+
+y2 = mydata4[,13]
+
+output=dyntreatDML(y2=y2, d1=d1, d2=d2, x0=x0, x1=x1, fewsplits = TRUE, normalized = TRUE)
+cat("dynamic ATE: ",round(c(output$effect),3),", standard error: ",
+    round(c(output$se),3), ", p-value: ",round(c(output$pval),3))
+output$ntrimmed
+##############
+library(tidyverse)
+year <- c(2000,2001,2002,2003)
+obs1 <- c(5,6,7,8)
+obs2 <- c(1,2,3,4)
+df <- data.frame(year,obs1,obs2)
+
+df %>% pivot_longer(cols = -year, names_to = NULL, values_to = "obs")
+##############
+library(tidyverse)
+string <- "newdatat.scat == \"RDS16\" ~ \"Asthma\","
+str_extract_all(string, pattern = '".*?"')
+##############
+# Load libraries
+library(tidyverse)
+
+# Create fake data
+set.seed(123)
+survey <- data.frame(A = sample(c("response 1", "response 2",
+                                  "response 3", "no response"),
+                                size = 100, replace = TRUE),
+                     B = sample(c("response 1", "response 2",
+                                  "response 3", "no response"),
+                                size = 100, replace = TRUE))
+# Examine the data
+head(survey)
+
+# Calculate how many responders answered A but not B, and vice versa
+sum(survey$A == "no response" & survey$B != "no response")
+sum(survey$B == "no response" & survey$A != "no response")
+#############
+library(tidyverse)
+df <- data.frame(colA=c("A","B","C"),
+                 colB = c("Stringn","Stringc","Stringb"),
+                 x2008 = c(2.71,3.1,6.21),
+                 x2009 = c(1.72,1.68,6.18),
+                 x2010 = c(1.32,2.66,4.21))
+df2 <- df %>%
+  pivot_longer(-c(colA, colB))
+
+yoy <- function(x) {
+  x - lag(x, 1, default = 0)
+}
+
+df2 %>%
+  group_by(colA, colB) %>%
+  mutate(yoy = scales::percent((value - lag(value, 1, default = NA)) / value))
+
+##############
+m <- matrix(0, 3,3, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
+dimnames(m)
+M <- Matrix::Matrix(m)
+m2 <- matrix(M, nrow = M@Dim,
+             dimnames = M@Dimnames)
+##############
+library(tidyverse)
+fruit1<-rep(c("Apples","Oranges","Apples","Grapes","Apples","Oranges"), 1000)
+fruit2<-rep(c("Apples","Oranges","Apples","Grapes","Apples","Oranges"), 1000)
+fruit3<-rep(c("Apples","Oranges","Apples","Grapes","Apples","Oranges"), 1000)
+data<-data.frame(fruit1,fruit2,fruit3, stringsAsFactors = FALSE)
+
+data %>%
+  mutate(across(c(fruit2, fruit3), ~ recode(.x, Apples="Apple")))
+
+
+fun1 <- function(data) {
+  data %>%
+    mutate(across(c(fruit2, fruit3), ~ recode(.x, Apples="Apple")))
+}
+
+fun2 <- function(data) {
+  data %>%
+    mutate(across(2:3, ~  replace(., . == 'Apples','Apple')))
+}
+
+fun3 <- function(data) {
+  for (i in 2:3){
+    data[i][data[i] == "Apples"] = "Apple"
+  }
+}
+
+fun4 <- function(data) {
+  data %>%
+    mutate(across(2:3, ~ ifelse(.x == 'Apples', 'Apple', .x)))
+}
+
+fun5 <- function(data) {
+  data$fruit2[data$fruit2 == "Apples"] = "Apple"
+  data$fruit3[data$fruit3 == "Apples"] = "Apple"
+}
+
+fun6 <- function(data) {
+  recode(data$fruit2, "Apples" = "Apple")
+  recode(data$fruit3, "Apples" = "Apple")
+}
+
+res <- microbenchmark::microbenchmark(fun1, fun2, fun3, fun4, fun5, fun6)
+res$expr <- forcats::fct_rev(forcats::fct_reorder(res$expr, res$time, mean))
+autoplot(res)
+##############
+library(tidyverse)
+area <- data.frame(
+  land = c("68N03E220090", "68N03E244635", "68N03E244352", "68N03E223241"),
+  type = c("home", "mobile", "home", "vacant"),
+  object_id = c(NA, 7, NA, 34)
+)
+
+block <- rep(c("68N03E22", "68N03E24"), 100)
+
+datalist = list()
+
+for (value in block){
+  df <- area %>% filter(is.na(object_id) & grepl(paste0("^", value),land))
+  df$value <- value
+  datalist[[value]] <- df # add it to your list
+}
+
+df_filtered <- dplyr::bind_rows(datalist)
+df_filtered
+
+df_filtered_2 <- area %>%
+  filter(is.na(object_id) & grepl(pattern = paste0(block, collapse = "|"), x = land)) %>% 
+  mutate(value = str_sub(land, 1, 8))
+
+identical(df_filtered, df_filtered_2)
+
+loop <- function(df) {
+  datalist = list()
+  
+  for (value in block){
+    df2 <- df %>% filter(is.na(object_id) & grepl(paste0("^", value),land))
+    df2$value <- value
+    datalist[[value]] <- df2 # add it to your list
+  }
+  df_filtered <- dplyr::bind_rows(datalist)
+}
+
+no_loop <- function(df) {
+  df_filtered_2 <- df %>%
+    filter(is.na(object_id) & grepl(pattern = paste0(block, collapse = "|"), x = land)) %>% 
+    mutate(value = str_sub(land, 1, 8))
+}
+
+speed <- microbenchmark::microbenchmark(loop(area), no_loop(area))
+autoplot(speed)
+
+#############
+# Load libraries
+library(tidyverse)
+library(data.table)
+
+# Create example data
+pick.nums <- function(n) {
+  floor(10^(sample(3:8, n, replace = TRUE))*runif(n))
+}
+
+pick.nums(5)
+
+df1 <- data.frame("Code 4 Dig" = c(pick.nums(600)),
+                  "Name" = paste("name_", pick.nums(600), sep = ""),
+                  check.names = FALSE)
+
+df2 <- data.frame("Code 4 Dig" = c(pick.nums(28000000)),
+                  "ID" = paste("ID_", c(pick.nums(28000000)), sep = ""),
+                  check.names = FALSE)
+
+# Convert example dataframes to data.tables
+setDT(df1)
+setDT(df2)
+
+# Set keys for joining
+setkey(df1, `Code 4 Dig`)
+setkey(df2, `Code 4 Dig`)
+
+# Join the tables
+Result <- df1[df2, nomatch=0]
+
+# Summarise to get counts
+counts <- Result[, .(counts = .N), by = `Code 4 Dig`]
+counts
+################
+library(tidyverse)
+library(GGally)
+
+# Loads some data
+mtcars <- mtcars[,1:6]
+
+# Defines function to color according to correlation
+cor_func <- function(data, mapping, method, symbol, ...){
+  x <- eval_data_col(data, mapping$x)
+  y <- eval_data_col(data, mapping$y)
+  
+  corr <- cor(x, y, method=method, use='complete.obs')
+  
+  colFn <- colorRampPalette(c("firebrick", "white", "dodgerblue"), 
+                            interpolate ='spline')
+  rampcols <- colFn(100)
+  match <- c(rampcols[1:10], rep("#FFFFFF", 80), rampcols[90:100])
+  fill <- match[findInterval(corr, seq(-1, 1, length = 100))]
+  
+  ggally_text(
+    label = paste(symbol, as.character(round(corr, 2))), 
+    mapping = aes(),
+    xP = 0.5, yP = 0.5,
+    color = 'black',
+    ...) + 
+    theme_void() +
+    theme(panel.background = element_rect(fill = fill))
+}
+
+# Following the suggestion by @Jonni
+pm <- ggpairs(mtcars, 
+              upper = list(continuous = wrap(cor_func,
+                                             method = 'spearman', symbol = "Corr:\n")),
+              lower = list(continuous = function(data, mapping, ...) {
+                ggally_smooth_lm(data = data, mapping = mapping)}),
+              diag = list(continuous = function(data, mapping, ...) {
+                ggally_densityDiag(data = data, mapping = mapping)}
+              ))
+
+pm
+##############
+
+plot_grid_modified <- function(..., plotlist = NULL, align = c("none", "h", "v", "hv"),
+                      axis = c("none", "l", "r", "t", "b", "lr", "tb", "tblr"),
+                      nrow = NULL, ncol = NULL, rel_widths = 1,
+                      rel_heights = 1, labels = NULL, label_size = 14,
+                      label_fontfamily = NULL, label_fontface = "bold", label_colour = NULL,
+                      label_x = 0, label_y = 1,
+                      hjust = -0.5, vjust = 1.5, scale = 1., greedy = TRUE,
+                      byrow = TRUE, cols = NULL, rows = NULL) {
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  num_plots <- length(plots)
+  
+  if (!is.null(cols)){
+    warning("Argument 'cols' is deprecated. Use 'ncol' instead.")
+  }
+  
+  if (!is.null(rows)){
+    warning("Argument 'rows' is deprecated. Use 'nrow' instead.")
+  }
+  
+  scale <- rep_len(scale, num_plots)
+  if (sum(scale <= 0) > 1){
+    stop("Argument 'scale' needs to be greater than 0.")
+  }
+  
+  # internally, this function operates with variables cols and rows instead of ncol and nrow
+  if (!is.null(ncol)){
+    cols <- ncol
+  }
+  if (!is.null(nrow)){
+    rows <- nrow
+  }
+  
+  
+  # calculate grid dimensions
+  if (is.null(cols) && is.null(rows)){
+    # if neither rows nor cols are given, we make a square grid
+    cols <- ceiling(sqrt(num_plots))
+    rows <- ceiling(num_plots/cols)
+  }
+  # alternatively, we know at least how many rows or how many columns we need
+  if (is.null(cols)) cols <- ceiling(num_plots/rows)
+  if (is.null(rows)) rows <- ceiling(num_plots/cols)
+  
+  # if the user wants to layout the plots by column, we use the calculated rows to reorder plots
+  if (!isTRUE(byrow)) plots <- plots[c(t(matrix(c(1:num_plots, rep(NA, (rows * cols) - num_plots)), nrow = rows, byrow = FALSE)))]
+  
+  # Align the plots (if specified)
+  grobs <- align_plots(plotlist = plots, align = align, axis = axis, greedy = greedy)
+  
+  if ("AUTO" %in% labels) {
+    count <- 0
+    labels <- c()
+    for (idx in seq_along(plots)) {
+      if (!is.null(unlist(plots[idx]))) {
+        count <- count + 1
+        labels <- c(labels, LETTERS[count])
+      } else {
+        labels <- c(labels, "")
+      }
+    }
+  } else if ("auto" %in% labels) {
+    count <- 0
+    labels <- c()
+    for (idx in seq_along(plots)) {
+      if (!is.null(unlist(plots[idx]))) {
+        count <- count + 1
+        labels <- c(labels, letters[count])
+      } else {
+        labels <- c(labels, "")
+      }
+    }
+  }
+
+  # label adjustments can be provided globally for all labels
+  # or individually for each label
+  hjust <- rep_len(hjust, length(labels))
+  vjust <- rep_len(vjust, length(labels))
+  label_x <- rep_len(label_x, length(labels))
+  label_y <- rep_len(label_y, length(labels))
+  
+  # calculate appropriate vectors of rel. heights and widths
+  rel_heights <- rep(rel_heights, length.out = rows)
+  rel_widths <- rep(rel_widths, length.out = cols)
+  # calculate the appropriate coordinates and deltas for each row and column
+  x_deltas <- rel_widths/sum(rel_widths)
+  y_deltas <- rel_heights/sum(rel_heights)
+  xs <- cumsum(rel_widths)/sum(rel_widths) - x_deltas
+  ys <- 1 - cumsum(rel_heights)/sum(rel_heights)
+  
+  # now place all the plots
+  p <- ggdraw() # start with nothing
+  col_count <- 0
+  row_count <- 1
+  for (i in 1:(rows*cols)){
+    if (i > num_plots) break
+    
+    x_delta <- x_deltas[col_count+1]
+    y_delta <- y_deltas[row_count]
+    x <- xs[col_count+1]
+    y <- ys[row_count]
+    
+    # place the plot
+    p_next <- grobs[[i]]
+    if (!is.null(p_next)){
+      p <- p + draw_grob(p_next, x, y, x_delta, y_delta, scale[i])
+    }
+    # place a label if we have one
+    if (i <= length(labels)){
+      p <- p + draw_plot_label(labels[i], x + label_x[i]*x_delta, y + label_y[i]*y_delta, size = label_size,
+                               family = label_fontfamily, fontface = label_fontface, colour = label_colour,
+                               hjust = hjust[i], vjust = vjust[i])
+    }
+    # move on to next grid position
+    col_count <- col_count + 1
+    if (col_count >= cols){
+      col_count <- 0
+      row_count <- row_count + 1
+    }
+  }
+  p
+}
+
+library(ggplot2)
+library(cowplot)
+
+df <- data.frame(
+  x = 1:10, y1 = 1:10, y2 = (1:10)^2, y3 = (1:10)^3, y4 = (1:10)^4
+)
+
+p1 <- ggplot(df, aes(x, y1)) + geom_point()
+p2 <- ggplot(df, aes(x, y2)) + geom_point()
+p3 <- ggplot(df, aes(x, y3)) + geom_point()
+p4 <- ggplot(df, aes(x, y4)) + geom_point()
+p5 <- ggplot(mpg, aes(as.factor(year), hwy)) +
+  geom_boxplot() +
+  facet_wrap(~class, scales = "free_y")
+# simple grid
+plot_grid_modified(p1, NULL, p3, p4, labels = "AUTO")
+#################
+library(tidyverse)
+iris$group = c ( rep ( "A", 50), rep ( "C", 25), rep ( "D", 50) ,rep ( "E", 25) )
+
+ggplot(iris,
+       aes(x =  group, 
+           y =  Species ,
+           colour = Species ,
+           size = Sepal.Width )) +
+  geom_point() +
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "none",
+        panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.ticks = element_blank()) +
+  geom_hline(yintercept = seq(1.5, 2.5, 1)) +
+  geom_vline(xintercept = seq(1.5, 3.5, 1))
+#################
+library(tidyverse)
+stem_data <- data.frame(Grade = rep(c("A", "B", "C", "P", "NP"), 2),
+                        STEMflag = factor(x = c(rep("STEM", 5), rep("NONSTEM", 5)),
+                                          levels = c("STEM", "NONSTEM")),
+                        percent = c(0.95, 0.93, 0.90, 0.67, 0.86,
+                                    0.05, 0.07, 0.10, 0.33, 0.14))
+head(stem_data)
+ggplot(data = stem_data, aes(x = Grade, y = percent, fill = STEMflag,
+                             label = paste(percent * 100, "%", sep = ""))) +
+  geom_bar(position = "fill", stat = "identity") +
+  scale_y_continuous(labels = scales::label_percent(accuracy = 1)) + 
+  geom_text(position = position_stack(vjust = 0.5), size = 4)
+#################
+library(ggpmisc)
+
+set.seed(123)
+n <- 1000
+x_vec <- runif(n)
+y_vec <- 3 + 1.3 * x_vec + rnorm(n)
+df <- data.frame(x = x_vec, y = y_vec)
+
+ggplot(df, aes(x, y)) +
+  geom_point() +
+  ylim(0, 8) +
+  ggpmisc::stat_poly_eq(formula = y ~ x,
+                        aes(label = paste(..eq.label..,
+                                          ..rr.label..,
+                                          ..f.value.label..,
+                                          ..p.value.label..,
+                                          ..AIC.label..,
+                                          ..BIC.label..,
+                                          sep = "~~~~")), 
+                        parse = TRUE) +
+geom_smooth(formula = y ~ x, method = "lm")
+###############
+library(tidyverse)
+
+data(iris)
+library(mboost)
+
+mod <- gamboost(Sepal.Width ~ bbs(Petal.Width) + bols(Species),
+                data = iris)
+
+ci <- confint(mod, level = 0.9, B = 5)
+plot(ci, which = "Petal.Width")
+################
+library(tidyverse)
+example_dataset <- structure(list(ID = 1:6,
+                                  Class = c("Amphibia", "Diverse", "Reptilia", "Amphibia", "Diverse", "Reptilia"),
+                                  Implementation = structure(c(1L, 1L, 1L, 2L, 2L, 2L),
+                                                             .Label = c("Observed", "Potential"),
+                                                             class = "factor"),
+                                  cost_bil = c(16.78812696789, 0.00755587011, 3.81210675659,
+                                               46.26621554247, 0.32702350757, 110.57066587724),
+                                  n = c(58190L, 9L, 2482L, 40748L, 3L, 16326L)),
+                             row.names = c(NA, -6L), class = "data.frame")
+example_dataset$Class <- factor(example_dataset$Class)
+
+my_pal <- colorRampPalette(c("yellow","firebrick2"))
+
+ggplot(example_dataset, aes(x = reorder(Class, -cost_bil), y = Implementation)) +
+  geom_point(aes(size = cost_bil, color = cost_bil)) +
+  geom_text(aes(label = paste("n =", scales::comma(n, accuracy = 1), sep = " ")),
+            nudge_y = 0.3) +
+  scale_color_gradientn(colours = my_pal(6)) +
+  scale_size_continuous(range = c(5, 30)) +
+  guides(color = guide_legend(reverse = T),
+         size = guide_legend(reverse = T)) +
+  labs(size = "US$ billions", color = "US$ billions") +
+  xlab("Taxonomic Class") +
+  ylab("Method reliability") +
+  theme_bw(base_size = 16)
+
+############
+# Setup
+library(tidyverse)
+#install.packages("tidymodels", type = "source")
+library(tidymodels)
+
+parks <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-22/parks.csv')
+
+modeling_df <- parks %>% 
+  select(pct_near_park_data, spend_per_resident_data, med_park_size_data) %>% 
+  rename(nearness = "pct_near_park_data",
+         spending = "spend_per_resident_data",
+         acres = "med_park_size_data") %>% 
+  mutate(nearness = (parse_number(nearness)/100)) %>% 
+  mutate(spending = parse_number(spending))
+
+# Start building models
+set.seed(123)
+park_split <- initial_split(modeling_df)
+park_train <- training(park_split)
+park_test <- testing(park_split)
+
+tree_rec <- recipe(nearness ~., data = park_train)
+tree_prep <- prep(tree_rec)
+juiced <- juice(tree_prep)
+
+tune_spec <- rand_forest(
+  mtry = tune(),
+  trees = 1000,
+  min_n = tune()
+) %>% 
+  set_mode("regression") %>% 
+  set_engine("ranger")
+
+tune_wf <- workflow() %>% 
+  add_recipe(tree_rec) %>% 
+  add_model(tune_spec)
+
+set.seed(234)
+park_folds <- vfold_cv(park_train)
+
+# Make a grid of various different models
+doParallel::registerDoParallel()
+
+set.seed(345)
+tune_res <- tune_grid(
+  tune_wf,
+  resamples = park_folds,
+  grid = 20,
+  control = control_grid(verbose = TRUE)
+)
+
+doParallel::stopImplicitCluster()
+
+best_rmse <- select_best(tune_res, "rmse")
+
+# Finalize a model with the best grid
+final_rf <- finalize_model(
+  tune_spec,
+  best_rmse
+)
+
+final_wf <- workflow() %>% 
+  add_recipe(tree_rec) %>% 
+  add_model(final_rf)
+
+final_res <- final_wf %>% 
+  last_fit(park_split)
+
+fit_to_train <- final_wf %>%
+  fit(park_train)
+
+
+final_res %>% 
+  collect_predictions() %>% 
+  ggplot(aes(nearness, .pred)) +
+  geom_point() +
+  geom_abline()
+
+############
+library(tidymodels)
+library(palmerpenguins)
+set.seed(1234)
+split_penguins <-initial_split(penguins)
+split_penguins
+train <-training(split_penguins)
+test <-testing(split_penguins)
+
+first_recipe <- train %>%
+  recipe(sex ~ .)
+summary(first_recipe)
+
+first_recipe %>% 
+  step_normalize(all_numeric_predictors()) %>%
+  step_spatialsign(all_numeric_predictors())
+
+##############
+library(tidyverse)
+library(palmerpenguins)
+library(extrafont)
+loadfonts()
+font_import()
+fonts()
+
+penguins %>%
+  na.omit() %>%
+  group_by(species) %>%
+  ggplot(aes(x = bill_length_mm, y = body_mass_g, fill = species)) +
+  geom_point(shape = 21) +
+  scale_fill_viridis_d(begin = 0, end = 0.6, name = "Species") +
+  scale_y_continuous(labels = scales::comma) +
+  labs(title = "Body Mass of 'Palmer' Antarctic Penguins\n",
+       caption = "\nJared Mamrot 2021-06-28 | Data released under a CC0 1.0 Universal license (https://allisonhorst.github.io/palmerpenguins)") +
+  xlab("Bill Length (mm)") +
+  ylab("Body Mass (g)") +
+  theme_classic(base_size = 18,
+                base_family = "Raleway SemiBold") +
+  theme(legend.position = "right",
+        plot.caption = element_text(size = 7, hjust = 0),
+        plot.title = element_text(size = 20))
+
+##############
+library(tidyverse)
+data_points = data.frame(x=rnorm(n=16), 
+                         y=rnorm(n=16), 
+                         col=c(rep("red",8), rep("blue",8)),
+                         shap=rep(c(rep("sq",4), rep("tr",4)), 2))
+                     
+p1 <- ggplot(data_points, aes(x=x, y=y, color=col, shape=shap)) + 
+  geom_point() +
+  theme_classic() +
+  scale_x_continuous(sec.axis = dup_axis(labels = NULL)) +
+  scale_y_continuous(sec.axis = dup_axis(labels = NULL, 
+                                         name = NULL,
+                                         breaks = NULL)) + 
+  theme(legend.spacing = unit(0, "pt"), 
+        legend.key.height = unit(8, "pt"), 
+        legend.spacing.x = unit(1, "pt"), 
+        legend.key.width  = unit(0, "pt"), 
+        legend.background = element_blank(), 
+        legend.box.background = element_rect(colour = "black"),
+        legend.justification = "top",
+        legend.margin=margin(4,4,4,4),
+        legend.box.spacing = margin(0.5))
+
+ggsave(filename = "desired_look.png", plot = p1, width = 2, height = 2, units = "in")
+################
+library(tidyverse)
+library(gapminder)
+
+set.seed(123)
+
+gapminder_subset <- gapminder %>% 
+  pivot_longer(-c(country, continent, year)) %>% 
+  filter(year == "1997" | year == "2007") %>% 
+  select(-continent) %>% 
+  filter(name == "gdpPercap") %>% 
+  pivot_wider(names_from = year) %>% 
+  select(-name) %>% 
+  mutate(gdp_change = ((`2007` - `1997`) / `1997`) * 100) %>% 
+  sample_n(15)
+
+
+ggplot(data = gapminder_subset,
+       aes(x = country, y = gdp_change - 25)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  scale_y_continuous(breaks = c(-25, 0, 25, 50),
+                     labels = c(0, 25, 50, 75))
+############
+library(tidyverse)
+positiveaffect <- structure(list(Group = c("SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", "SH", 
+                         "SH", "SH", "SH", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", 
+                         "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", 
+                         "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", 
+                         "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", 
+                         "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", 
+                         "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", "HC", 
+                         "HC", "HC", "HC", "HC", "HC", "HC"), Time = c(1, 1, 1, 1, 1, 
+                                                                       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+                                                                       1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+                                                                       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 
+                                                                       3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 
+                                                                       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 
+                                                                       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+                                                                       2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 
+                                                                       3, 3, 3), Scores = c(18, 24, 31, 11, 14, 23, 17, 32, 19, 10, 
+                                                                                            35.6378909726158, 16, 22, 19, 19, 23, 20, 34, 17, 29, 12, 20, 
+                                                                                            16, 30, 26, 18, 21, 20, 15, 28, 29.3521832998335, 16, 10, 15, 
+                                                                                            17, 21, 14, 23, 12, 28, 17, 22, 13, 17, 13, 17, 16, 18, 19, 11, 
+                                                                                            17, 16, 24, 20, 22, 19, 18, 18, 15, 28.0883375096763, 20, 10, 
+                                                                                            11, 13, 10, 28.0883375096763, 16, 11, 22, 10, 16, 10, 13, 12, 
+                                                                                            16, 16, 15, 17, 10, 10, 10, 10, 13, 10, 18, 24, 26, 41, 25, 32, 
+                                                                                            13, 13, 28, 10, 24, 32, 36, 17, 16, 25, 38, 27, 28, 18, 14, 18, 
+                                                                                            30, 27, 24, 19, 33.2978283948586, 24, 24, 14, 20, 20, 10, 22, 
+                                                                                            15, 12, 24, 20, 26, 21, 20, 17, 11, 24, 10, 21, 24, 27, 22, 34.0925216652814, 
+                                                                                            24, 25, 12, 15, 24, 18, 23, 27, 14, 13, 11, 21, 25, 20, 22, 15, 
+                                                                                            11, 17, 10, 20, 27), ID = c("1222", "1992j", "1992i", "1592", 
+                                                                                                                        "1602", "1192", "1852", "1422", "1732", "1999", "1924", "1812", 
+                                                                                                                        "1752", "1762", "1782", "19992", "1892", "199912", "190", "171", 
+                                                                                                                        "199924", "1912", "199943", "1982", "1802", "3812", "199945", 
+                                                                                                                        "197", "1492", "1222", "1992j", "1992i", "1592", "1602", "1192", 
+                                                                                                                        "1852", "1422", "1732", "1999", "1924", "1812", "1752", "1762", 
+                                                                                                                        "1782", "19992", "1892", "199912", "190", "171", "199924", "1912", 
+                                                                                                                        "199943", "1982", "1802", "3812", "199945", "197", "1492", "1222", 
+                                                                                                                        "1992j", "1992i", "1592", "1602", "1192", "1852", "1422", "1732", 
+                                                                                                                        "1999", "1924", "1812", "1752", "1762", "1782", "19992", "1892", 
+                                                                                                                        "199912", "190", "171", "199924", "1912", "199943", "1982", "1802", 
+                                                                                                                        "3812", "199945", "197", "3212", "3182", "3162", "3412", "3492", 
+                                                                                                                        "1993", "363", "3362", "3122", "3152", "1997", "19995", "330", 
+                                                                                                                        "370", "3999", "19998", "375", "374", "373", "377", "379", "380", 
+                                                                                                                        "382", "3212", "3182", "3162", "3412", "3492", "1993", "363", 
+                                                                                                                        "3362", "3122", "3152", "1997", "19995", "330", "370", "3999", 
+                                                                                                                        "19998", "375", "374", "373", "377", "379", "380", "382", "3212", 
+                                                                                                                        "3182", "3162", "3412", "3492", "1993", "363", "3362", "3122", 
+                                                                                                                        "3152", "1997", "19995", "330", "370", "3999", "19998", "375", 
+                                                                                                                        "374", "373", "377", "379", "380", "382")), row.names = c(NA, 
+                                                                                                                                                                                  -155L), class = c("tbl_df", "tbl", "data.frame"))
+
+positiveplot = ggplot(positiveaffect,
+                      aes(x = factor(Time),
+                          y = Scores,
+                          fill = Group)) +
+  geom_boxplot(outlier.shape = NA) +
+  labs(title="Change in self-rated positive affect",
+       x="\nTime",
+       y = "Positive Affect Score\n") +
+  theme_classic() +
+  theme(legend.title = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        axis.text.x = element_text(vjust = -2, angle = 45, face = "bold"),
+        axis.text.y = element_text(vjust = -2, face = "bold"),
+        axis.title = element_text(face = "bold")) +
+  scale_x_discrete(labels = labelspositive)
+positiveplot
+#############
+#install.packages("vroom")
+library(vroom)
+df <- data.frame(ID = c("1", "2", "3"))
+list_of_csvs <- paste(df$ID, ".csv", sep = "")
+vroom(file = list_of_csvs, id = "ID")
+############
+library(tidyverse)
+
+iris %>% 
+  group_by(Species) %>% 
+  summarise(`Mean Petal Length` = mean(Petal.Length))
+
+library(tidyverse)
+test <- iris %>% 
+  mutate(Petal.Length_cut = cut(Petal.Length,
+                                breaks = seq(min(Petal.Length),
+                                             max(Petal.Length), 0.1))) %>% 
+  group_by(Species, Petal.Length_cut) %>% 
+  summarise(`Mean Sepal Length` = mean(Sepal.Length)) %>% 
+  ungroup() %>% 
+  pivot_wider(names_prefix = "Petal.Length_", names_from = Petal.Length_cut, values_from = `Mean Sepal Length`)
+##############
+data=data.frame(Date=c('2005-01-01','2005-02-01','2005-03-01','2005-04-01','2005-05-01'),
+                       col1 = c(1,2,3,4,5),
+                       col2 = c(1,2,3,4,5))
+data[,'Date']= as.POSIXct(data[,'Date'],format='%Y-%m-%d')
+
+lagpad <- function(x, k) {
+  if (k>0) {
+    return (c(rep(NA, k), x)[1 : length(x)] )
+  }
+  else {
+    return (c(x[(-k+1) : length(x)], rep(NA, -k)))
+  }
+}
+
+data$col_l1 <- lagpad(data$col2, 1)
+##############
+a <- c(1,2,3,4)
+b <- c(1,3,5,7,8,9)
+d <- c(1,2,5,7,9)
+e <- c(1,3,4,8,0,10)
+f <- c(2,3)
+list_of_vecs <- list(a, b, d, e, f)
+names(list_of_vecs) <- c("a", "b", "d", "e", "f")
+nms <- combn( names(list_of_vecs), 2, FUN = paste0,
+              collapse = "", simplify = FALSE)
+combinations <- combn(list_of_vecs, 2, simplify = FALSE)
+out <- lapply(combinations, function(x) intersect(x[[1]], x[[2]]))
+setNames(out, nms)
+remove_empty <- purrr::compact(out)
+
+##############
+library(tidyverse)
+df = data.frame(Type = rep(c('A', 'B'), 250), Index = seq(500), Value = cumsum(rnorm(500)))
+scales::hue_pal()(3)
+seg_df <- data.frame(x = c(200, 400, 0, 100, 300),
+                     xend = c(300, 500, 100, 200, 400),
+                     y = c(-8, -4, 0, 4, 8), 
+                     yend = c(-8, -4, 0, 4, 8), 
+                     col = factor(c("#F8766D", "#F8766D", "#00BA38",
+                                    "#619CFF", "#619CFF"),
+                                  labels = c("Alpha", "Beta", "Gamma")))
+
+ggplot(df, aes(Index, Value)) +
+  geom_line(aes(col = Type), show.legend = TRUE) +
+  geom_segment(data = seg_df, aes(x = x, xend = xend,
+                                  y = y, yend = yend,
+                                  fill = col),
+               color = c("#F8766D", "#F8766D", "#00BA38",
+                         "#619CFF", "#619CFF")) +
+  scale_fill_manual("Classification",
+                    values = c("Alpha", "Beta", "Gamma"),
+                    guide = guide_legend(override.aes = list(
+                      colour = c("#F8766D", "#00BA38", "#619CFF"))))
+##############
+library(tidyverse)
+library(palmerpenguins)
+
+penguins %>%
+  na.omit() %>%
+  ggplot(aes(x = body_mass_g, y = bill_length_mm)) +
+  geom_point(aes(shape = sex)) +
+  geom_point(aes(color = island)) +
+  scale_color_discrete(limits = c("Biscoe", "Torgersen", "Dream"))
+############
+library(data.table)
+
+matrix1 <- read.table(text = "X1          X2
+    1 ENSG00000121410
+   10 ENSG00000156006
+  100 ENSG00000196839", header = TRUE)
+
+matrix2 <- read.table(text = "     Y1          Y2
+    1 6.674755e-01
+   10 0.000000e+00
+  100 9.975216e-01", header = TRUE)
+
+setDT(matrix1)
+setDT(matrix2)
+
+joined_matrix <- merge(matrix1, matrix2, by.x = "X1", by.y = "Y1")
+#############
+library(tidyverse)
+
+df1 <- data.frame(
+  stringsAsFactors = FALSE,
+         row.names = c("23","24","25","26","27",
+                       "28","29","30","31","32","33"),
+           Subject = c("VP02_RP","VP02_RP","VP02_RP",
+                       "VP02_RP","VP02_RP","VP02_RP","VP02_RP","VP02_RP",
+                       "VP02_RP","VP02_RP","VP02_RP"),
+             Trial = c(15L, 15L, 15L, 15L, 15L, 18L, 18L, 18L, 18L, 18L, 19L),
+        Event_type = c("Picture","Sound","Picture",
+                       "Nothing","Response","Picture","Sound","Picture",
+                       "Nothing","Response","Response"),
+              Code = c("face01_n","mpossound_test5",
+                       "pospic_test5","ev_mnegpos_adj_onset","15","face01_p",
+                       "mpossound_test6","negpic_test6",
+                       "ev_mposnegpos_adj_onset","15","13"),
+              Time = c(887969L,888260L,906623L,
+                       928623L,958962L,987666L,987668L,1006031L,1028031L,
+                       1076642L,1680887L)
+)
+
+df1 %>%
+  filter(Event_type != lag(Event_type, 1))
+###############
+library(psych)
+descriptives <- psych::describe(sat.act ~ gender)
+
+for (i in seq_along(descriptives)){
+  write.table(x = descriptives[[i]],
+            file = "descriptive_stats.csv",
+            append = TRUE,
+            quote = FALSE,
+            row.names = TRUE,
+            sep = ",")
+}
+
+
+save_individually <- function(x, df) {
+  write.table(df[[x]], file = paste("descriptives", x, "txt", sep = "."),
+              sep = ",", append = FALSE, quote = FALSE)
+}
+
+purrr::map(names(descriptives), save_individually, descriptives)
+##############
+library(tidyverse)
+
+df1 <- tibble::tribble(
+  ~C1, ~C2, ~C3, ~C4, ~C5, ~C6, ~C7, ~C8, ~C9, ~C10,
+  "a", "b", "c", "d", "e", "f", "g", "h", "i",  "j"
+)
+
+result_1 <- combn(names(df1), m = 2, simplify = FALSE)
+result_2 <- combn(names(df1), m = 3, simplify = FALSE)
+
+result_1[[2]]
+result_2[[1]]
+################
+library(tidyverse)
+
+df1 <- data.frame(ab1 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab2 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab3 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab4 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab5 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab6 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab7 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab8 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab9 = ifelse(runif(100) >= 0.5, 0, 1),
+                  ab10 = ifelse(runif(100) >= 0.5, 0, 1))
+
+heatmap(as.matrix(df1), scale = "row", col = cm.colors(256))
+heatmap(as.matrix(df1), scale = "none", col = cm.colors(256))
+############
+df1 <- tibble::tribble(
+  ~r,   ~y1,   ~y2,   ~y3,   ~y4,
+  1L, 2017L,    0L,    0L,    0L,
+  2L,    0L, 2018L,    0L,    0L,
+  3L,    0L,    0L, 2019L,    0L,
+  4L, 2017L,    0L,    0L,    0L,
+  5L,    0L,    0L, 2019L,    0L,
+  6L,    0L,    0L,    0L, 2020L,
+  7L,    0L, 2018L,    0L,    0L
+  )
+df1$year <- rowSums(df1[2:5])
+df1
+#############
+my_data <- data.frame(
+  "name" = c("john", "jason", "jack", "jim", "john", "jason", "jack", "jim" ),
+  "points_1" = c("150", "165", "183", "191", "151", "166", "184", "192"),
+  "points_2" = c("250", "265", "283", "291", "251", "266", "284", "292")
+)
+
+my_data$var1 <- paste("<", my_data$points_1, sep = "")
+my_data$var2 <- paste(">", my_data$points_1, " and ", "<", my_data$points_2, sep = "")
+my_data$var3 <- paste(">", my_data$points_2, sep = "")
+my_data
+#############
+library(tidyverse)
+library(ggpubr)
+
+sp <- c("sp1","sp1","sp1","sp2","sp2","sp2","sp3","sp3","sp3","sp4","sp4","sp4","sp5","sp5","sp5")
+category <- c("a","b","c","a","b","c","a","b","c","a","b","c","a","b","c")
+count <- c(1,2,1,1,4,2,3,1,3,1,4,5,2,5,1)
+habitat <- c("A","A","A","B","B","B","C","C","C","D","D","D","E","E","E")
+d <- data.frame(cbind(sp, category, count, habitat))
+
+dm <- d %>%
+  select(sp, category, count)%>%
+  tidyr::pivot_wider(names_from = "sp", values_from = "count")%>%  #clusterで並び替え
+  replace(is.na(.),0)
+dm <- as.matrix(dm[, -1]) # -1 to omit categories from matrix
+clust <- hclust(dist(t(dm)), method = "single")
+
+dmc <- data.frame(x = factor(d$sp), colour = factor(d$sp))
+
+my_fill <- scale_fill_gradient(low="grey90", high="red",  
+                               breaks=c(0,5,10,15,20, 25, 30), 
+                               rescale=function(x, ...) scales::rescale(x, from=c(0, 30)),
+                               limits=c(0,30))
+
+plot1 <- ggplot(d, aes(category, sp))+
+  geom_tile(aes(fill = as.numeric(count)))+
+  my_fill +
+  scale_y_discrete(limits = colnames(dm)[clust$order]) +
+  theme(legend.position = "right")
+
+plot2 <- ggplot(dmc) +
+  geom_tile(aes(x = 1, y = x, fill = colour)) +
+  theme_void() +
+  scale_fill_manual(values = viridis::viridis(5)) +
+  theme(legend.position = "none")
+
+ggarrange(plot2, plot1, nrow = 1, widths = c(0.25, 10), align = "hv")
+
+##########
+
+set.seed(1234)
+ind <- sample(2, nrow(mtcars), replace = TRUE, prob = c(0.7, 0.3))
+train.data <- mtcars[ind == 1, ]
+test.data <- mtcars[ind == 2, ]
+mlr_model<-lm(mpg ~ ., data=train.data)
+print(mlr_model)
+summary(mlr_model)
+plot(mlr_model)
+
+pred <-predict(mlr_model, newdata = test.data)
+pred
+plot(test.data$mpg, pred, xlab = "Observed", ylab = "Prediction")
+############
+library(tidyverse)
+#install.packages("countrycode")
+library(countrycode)
+
+df1 <- tibble::tribble(
+             ~country_name,
+             "Afghanistan",
+                 "Albania",
+                 "Algeria",
+                 "Andorra",
+                  "Angola",
+     "Antigua and Barbuda",
+               "Argentina",
+                 "Armenia",
+               "Australia",
+                 "Austria",
+              "Azerbaijan",
+                 "Bahamas",
+                 "Bahrain",
+              "Bangladesh",
+                "Barbados",
+                 "Belarus",
+                 "Belgium",
+                  "Belize",
+                   "Benin",
+                  "Bhutan",
+                 "Bolivia",
+  "Bosnia and Herzegovina",
+                "Botswana",
+                  "Brazil",
+                  "Brunei",
+                "Bulgaria",
+            "Burkina Faso",
+                 "Burundi",
+           "Côte d'Ivoire",
+              "Cabo Verde"
+  )
+df1$country_name <- toupper(df1$country_name)
+df1$continent <- countrycode(df1$country_name, "country.name", "continent")
+df1
+
+##############
+library(tidyverse)
+df <- data.frame(id = c("Missing","power_1-1","power_1-2","power_1-3","power_1-4","power_1-5","power_2","power_3","power_4","power_5"),
+                 mean = c(-0.0823,0.0592,-0.0556,-0.1037,-0.1303,-0.1478,-0.1857,-0.2074,-0.2231,-0.2156),
+                 se = c(0.0609,0.0247,0.0216,0.0206,0.0202,0.0199,0.0194,0.0193,0.0205,0.0242), stringsAsFactors = FALSE)
+
+colour_scale <- c("red", viridis::mako(9))
+
+p1 <- df %>%
+  rowwise() %>%
+  mutate(CI95 = list(c(mean + 1.96 * se, mean - 1.96 * se)),
+         CI99 = list(c(mean + 2.58 * se, mean - 2.58 * se))) %>%
+  unnest(c(CI95, CI99)) %>%
+  mutate(id = factor(reorder(id, -CI99))) %>%
+  ggplot() +
+  labs(x = NULL, y = NULL) +
+  geom_line(aes(x = id, y = CI99, group = id, color = id)) +
+  geom_line(aes(x = id, y = CI95, group = id, color = id), size = 3) +
+  geom_point(aes(x = id, y = mean, color = id), fill = "white", shape = 23, size = 3) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept=1:9+0.5, colour="lightblue", size = 0.5) +
+  theme_classic() +
+  scale_color_manual(values = colour_scale) +
+  coord_flip()
+ggsave(filename = "example_plot.png", plot = p1, width = 18, height = 7, units = "cm")
+###########
+library(tidyverse)
+pct.df <- structure(list(group = c("a", "a", "a", "b", "b", "b"), gender = c("male", 
+                                                                             "female", "male", "female", "male", "female"), var_a = c(33.3333333333333, 
+                                                                                                                                      16.6666666666667, 50, 50, 50, 33.3333333333333), var_b = c(50, 
+                                                                                                                                                                                                 75, 50, 75, 75, 75), var_c = c(50, 75, 75, 100, 75, 75), var_d = c(50, 
+                                                                                                                                                                                                                                                                    25, 0, 25, 50, 50), var_e = c(25, 0, 50, 0, 50, 25), var_f = c(25, 
+                                                                                                                                                                                                                                                                                                                                   25, 0, 50, 50, 25), var_g = c(25, 25, 0, 50, 50, 25), var_h = c(25, 
+                                                                                                                                                                                                                                                                                                                                                                                                   25, 0, 50, 50, 25), avg = c(35.4166666666667, 33.3333333333333, 
+                                                                                                                                                                                                                                                                                                                                                                                                                               28.125, 50, 56.25, 41.6666666666667)), class = "data.frame", row.names = c(NA, 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -6L))
+pct.df %>% 
+  pivot_longer(-c(group, gender, avg), names_to = "variable") %>% 
+  group_by(variable) %>%
+  summarise(n = n(),
+            mean = mean(value),
+            sd = sd(value),
+            se = sd/sqrt(n),
+            ic = se * qt((1-0.05)/2 + .5, n-1))
+
+################
+library(tidyverse)
+pct.df <- structure(list(group = c("a", "a", "a", "b", "b", "b"), gender = c("male", 
+                                                                             "female", "male", "female", "male", "female"), var_a = c(33.3333333333333, 
+                                                                                                                                      16.6666666666667, 50, 50, 50, 33.3333333333333), var_b = c(50, 
+                                                                                                                                                                                                 75, 50, 75, 75, 75), var_c = c(50, 75, 75, 100, 75, 75), var_d = c(50, 
+                                                                                                                                                                                                                                                                    25, 0, 25, 50, 50), var_e = c(25, 0, 50, 0, 50, 25), var_f = c(25, 
+                                                                                                                                                                                                                                                                                                                                   25, 0, 50, 50, 25), var_g = c(25, 25, 0, 50, 50, 25), var_h = c(25, 
+                                                                                                                                                                                                                                                                                                                                                                                                   25, 0, 50, 50, 25), avg = c(35.4166666666667, 33.3333333333333, 
+                                                                                                                                                                                                                                                                                                                                                                                                                               28.125, 50, 56.25, 41.6666666666667)), class = "data.frame", row.names = c(NA, 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -6L))
+pct.df %>% 
+  pivot_longer(-c(group, gender, avg), names_to = "variable") %>% 
+  group_by(group, variable) %>%
+  summarise(n = n(),
+            mean = mean(value),
+            sd = sd(value),
+            se = sd/sqrt(n),
+            ic = se * qt((1-0.05)/2 + .5, n-1)) %>%
+  select(-n) %>%
+  bind_rows(summarise(., across(everything(), ~if(is.numeric(.)) mean(.) else "AVG"))) %>%
+  arrange(group)
+###############
+# Load libraries
+library(tidyverse)
+
+# Create some "fake" data with all 3 "Gaze-by's",
+# shuffle the AOIs between the different "Gaze-by's"
+# and only keep data for the first two minutes
+df <- df4 %>% 
+  bind_rows(df4 %>% mutate(Gaze_by = "B", AOI = sample(AOI)), 
+            df4 %>% mutate(Gaze_by = "A", AOI = sample(AOI))) %>% 
+  filter(minute %in% 0:2)
+
+# Plot the data
+df %>%
+  ggplot(aes(x = start_pm,
+             xend = end_pm,
+             y = minute + scale(as.numeric(as.factor(AOI))) / 10,
+             yend = minute + scale(as.numeric(as.factor(AOI))) / 10,
+             color = AOI)) +
+  geom_segment(size = 2) +
+  scale_y_reverse(breaks = 0:53,
+                  labels = paste0(0:53, "min"),
+                  name = NULL) +
+  scale_colour_manual(values = c("*" = "lemonchiffon",
+                                 "A" = "darkorange",
+                                 "B" = "lawngreen",
+                                 "C" = "slateblue1")) +
+  theme_classic(base_size = 14) +
+  theme(axis.title.x.bottom = element_blank()) +
+  facet_wrap(~ minute + Gaze_by, ncol = 1,
+             scales = "free_y", strip.position = "right",
+             labeller = labeller(minute = label_both,
+                                 Gaze_by = label_both)) +
+  theme(strip.text = element_text(size = 8))
+
+df %>%
+  ggplot(aes(x = start_pm,
+             xend = end_pm,
+             y = minute + scale(as.numeric(as.factor(Gaze_by))) / 6,
+             yend = minute + scale(as.numeric(as.factor(Gaze_by))) / 6,
+             color = AOI)) +
+  geom_segment(size = 3) +
+  scale_y_reverse(breaks = 0:53,
+                  labels = paste(0:53, "min", " Gaze_by_A\n Gaze_by_B\n Gaze_by_C", sep = " "),
+                  name = NULL) +
+  scale_colour_manual(values = c("*" = "lemonchiffon",
+                                 "A" = "darkorange",
+                                 "B" = "lawngreen",
+                                 "C" = "slateblue1")) +
+  theme_classic(base_size = 18) +
+  theme(axis.title.x.bottom = element_blank())
+
+##############
+library(tidyverse)
+
+df <- tibble(Source = c("A","A","B","B","C","C"),
+             Group = c("y","n","y","n","y","n"),
+             y2.5 = c(0.592,0.471,0.182,0.285,0.024,0.031),
+             y25 = c(0.633,0.53,0.217,0.325,0.059,0.081),
+             y50 = c(0.673,0.547,0.24,0.347,0.08,0.106),
+             y75 = c(0.699,0.58,0.267,0.370,0.103,0.130),
+             y97.5 = c(0.764,0.61,0.312,0.414,0.146,0.173))
+
+ggplot(df, aes(x = Source, fill = Group)) +
+  geom_boxplot(aes(ymin = y2.5, lower = y25,
+                   middle = y50, upper = y75,
+                   ymax = y97.5),
+               stat = "identity")
+
+ggplot(df, aes(x = Source, color = Group)) +
+  geom_boxplot(aes(ymin = y2.5, lower = y25,
+                   middle = y50, upper = y75,
+                   ymax = y97.5),
+               stat = "identity")
+
+ggplot(df, aes(x = interaction(Group, Source))) +
+  geom_boxplot(aes(ymin = y2.5, lower = y25,
+                   middle = y50, upper = y75,
+                   ymax = y97.5),
+               stat = "identity")
+
+ggplot(df, aes(Source))+
+  geom_boxplot(aes(ymin = y2.5, lower = y25, middle = y50, upper = y75, ymax = y97.5, 
+                   group = interaction(Source, Group)),
+               stat = "identity")
+#############
+library(tidyverse)
+set.seed(123)
+df <- data.frame(
+  class_id = c(rep("a", 6), rep("b", 6)),
+  student_id = c(rep(1, 3), rep(2, 2), rep(3, 1), rep(4, 2), rep(5, 3), rep(6, 1)),
+  value = rnorm(12)
+)
+
+df %>% 
+  group_by(class_id, student_id)  %>% 
+  summarise(student_mean = mean(value)) %>%
+  mutate(class_mean_exc_this_student = (
+    sum(student_mean) - student_mean)/(n() - 1)
+    )
+
+##############
+library(tidyverse)
+#remotes::install_github("Financial-Times/ftplottools")
+library(ftplottools)
+library(extrafont)
+#font_import()
+#fonts()
+
+covid %>%
+  ggplot() +
+  geom_line(aes(x = date, y = deaths_roll7_100k,
+                group = Province_State, color = Province_State)) +
+  geom_text(data = . %>% filter(date == max(date)),
+            aes(color = Province_State, x = as.Date(Inf),
+                y = deaths_roll7_100k),
+            hjust = 0, size = 4, vjust = 0.7,
+            label = c("Arizona\n", "North Carolina")) +
+  coord_cartesian(expand = FALSE, clip = "off") +
+  ft_theme(base_family = "Arimo for Powerline") +
+  theme(plot.margin = unit(c(1,6,1,1), "lines"),
+        legend.position = "none",
+        plot.background = element_rect(fill = "#FFF1E6"),
+        axis.title = element_blank(),
+        panel.grid.major.x = element_line(colour = "gray75"),
+        plot.caption = element_text(size = 8, color = "gray50")) +
+  scale_color_manual(values = c("#E85D8C", "#0D5696")) +
+  scale_x_date(breaks = seq.Date(from = as.Date('2020-09-01'),
+                                 to = as.Date('2021-07-01'),
+                                 by = "1 month"),
+               limits = as.Date(c("2020-09-01", "2021-07-01")),
+               date_labels = "%b\n%Y") +
+  scale_y_continuous(breaks = seq(from = 0, to = 2.4, by = 0.2)) +
+  labs(title = "New deaths attributed to Covid-19 in North Carolina and Arizona",
+       subtitle = "Seven-day rolling average of new deaths (per 100k)\n",
+       caption = "Source: Analysis of data from John Hopkins SSE\nUpdated: 12th July 2021 | CCBY4.0")
+################
+library(tidyverse)
+library(lubridate)
+
+date <- c(today()+1, today()+2, today()+3, today()+4, today()+5, today()+6)
+precipitation <- c(0, 0, 35, 0, 0, 35)
+weatherdataframe <- data.frame(date = date, precipitation = precipitation)
+date2 <- c(today()-4, today()-7)
+flag2 <- c("35mm24hrs", "10mm1hr")
+emaillog <- data.frame(date2, flag2)
+
+ifelse(
+  any((weatherdataframe$precipitation >= 35) & (weatherdataframe$date <= (today() + 3)))
+  && 
+  any((emaillog$date2 <= (today() -7)), (length(unlist(emaillog$date2)) == 0)),
+  paste("flagged"),
+  paste("nothing flagged")
+  )
+################
+library(tidyverse)
+df <- tibble::tribble(
+     ~Item, ~Qty,    ~time_loc,
+   "Apple",   2L, "15/07/2021",
+   "Apple",   1L, "18/07/2021",
+   "Apple",   1L, "19/07/2021",
+  "Banana",   3L, "15/07/2021",
+  "Banana",   4L, "18/07/2021"
+  )
+
+df %>% 
+  group_by(Item) %>% 
+  summarize(Qty = sum(Qty),time_loc = min(time_loc)) %>% 
+  mutate(Flag = if_else(Qty > 5, "Yes","No"))
+#############
+library(tidyverse)
+
+sub_funnel_data <- structure(list(funnelstep = structure(1:5, .Label = c("Sessions", 
+                                                                         "Engaged Sessions", "Subscription Funnel - Arrives on Enter Email", 
+                                                                         "Subscription Funnel - Arrives on Payment Details", "Direct to Paid"), 
+                                                         class = "factor"), N = c(92853L, 33107L, 3469L, 3149L, 113L),
+                                  Drop = c(NA, 0.356552830818606, 0.104781466155194, 0.907754396079562, 
+                                           0.0358844077484916), Rate = c(1, 0.356552830818606, 0.0373601283749583, 
+                                                                         0.0339138207704651, 0.00121697737283663)),
+                             row.names = c(NA, 5L), class = c("tbl_df", "tbl", "data.frame"))
+
+sub_funnel_data %>% mutate(End = lag(N),
+                           xpos = 1:n() + 0.5,
+                           Diff = End - N,
+                           Percent = paste("\u2190 ", round(Diff / End * 100, 1), "% drop", sep = ""),
+                           Rate = paste("(", round(Rate * 100, 1), "%", " of total Sessions)", sep = "")) %>% 
+  ggplot(aes(x = reorder(funnelstep, desc(funnelstep)), y = N)) +
+  geom_bar(stat = 'identity', fill = '#39cccc') +
+  stat_summary(aes(label = paste("n = ", scales::comma(..y..), sep = "")),
+               fun = "sum", geom = "text",
+               col = "black", vjust = 0,
+               hjust = -0.05, size = 4) +
+  geom_segment(aes(x = rev(xpos), y = End, xend = rev(xpos), yend = N * 1.1)) +
+  geom_text(aes(x = rev(xpos - 0.1), y = End - Diff / 1, label = Percent), hjust = -0.2) +
+  geom_text(aes(x = rev(xpos - 0.7), y = End - Diff, label = Rate), color = "black", hjust = 0) +
+  coord_flip()
+##############
+library(data.table)
+
+df <- data.frame(X1 = rep(1:50, each = 2),
+                 X2 = rep(x = 1:2, times = 50),
+                 X3 = rep(x = 1:2, times = 50),
+                 X4 = rep(x = 1:2, times = 50),
+                 X5 = rep(x = 1:2, times = 50),
+                 X6 = rep(x = 1:2, times = 50),
+                 X7 = rep(x = 1:2, times = 50),
+                 X8 = rep(x = 1:2, times = 50),
+                 X9 = rep(x = 1:2, times = 50),
+                 X10 = rep(x = 1:2, times = 50)
+                 )
+setDT(df)
+head(df)
+
+df2 <- df[ ,lapply(.SD, mean), by = X1, .SDcols = X2:X10]
+head(df2)
+
+
+#########
+library(tidyverse)
+library(grid)
+
+png(filename = "example.png", width = 480, height = 480)
+ggplot(mtcars) + geom_point(aes(cyl,mpg, color = cyl)) +
+  scale_color_continuous(labels = c(expression(underline(" Above 65 & over")),
+                                    expression(underline("45 - 64")),
+                                    expression(underline("25 - 44")),
+                                    expression(underline("15 - 24")),
+                                    expression(underline("Under 15"))))
+grid.lines(x = c(0.89, 0.98), y = 0.592,
+           arrow = arrow(length = unit(1.5, "mm"), ends = "first"))
+grid.lines(x = c(0.91, 0.98), y = 0.547,
+           arrow = arrow(length = unit(1.5, "mm"), ends = "first"))
+grid.lines(x = c(0.91, 0.98), y = 0.502,
+           arrow = arrow(length = unit(1.5, "mm"), ends = "first"))
+grid.lines(x = c(0.91, 0.98), y = 0.457,
+           arrow = arrow(length = unit(1.5, "mm"), ends = "first"))
+grid.lines(x = c(0.831, 0.98), y = 0.414,
+           arrow = arrow(length = unit(1.5, "mm"), ends = "first"))
+grid.gedit("GRID.line", gp = gpar(lwd = 2))
+dev.off()
+
+#############
+library(tidyverse)
+
+     
